@@ -159,3 +159,8 @@ html, body { margin: 0; height: 100%; background: var(--latar); color: var(--tek
 /* Dash 4 memberi warna aksen bawaan pada opsi terpilih/hover; samakan dengan tinta teks */
 .sakelar .dash-options-list-option, .sakelar .dash-options-list-option.selected,
 .sakelar .dash-options-list-option:hover { color: var(--teks); background: transparent; }
+
+/* Atribusi OSM harus selalu terlihat: pindahkan kontrol kanan-bawah Leaflet ke atas laci analisis */
+.leaflet-bottom.leaflet-right { bottom: calc(var(--laci) + 20px); z-index: 1001; transition: bottom .2s ease; }
+.akar:has(.laci:not(.terbuka)) .leaflet-bottom.leaflet-right { bottom: 60px; }
+.leaflet-control-attribution { border-radius: 8px !important; margin: 0 12px 0 0 !important; box-shadow: var(--bayang); }

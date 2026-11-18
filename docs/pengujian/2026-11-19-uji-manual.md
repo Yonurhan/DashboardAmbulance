@@ -21,6 +21,7 @@ Pemeriksaan otomatis memakai skrip di halaman: jumlah penanda pos dihitung dari 
 
 **Pemeriksaan tambahan**
 - Laci analisis bisa dilipat dan dibuka. Kolom kiri dan legenda ikut bergeser.
+- Atribusi © OpenStreetMap contributors terlihat (dicek dengan elementFromPoint) saat laci terbuka maupun terlipat.
 - Konsol browser bersih. Tidak ada traceback di terminal server.
 - **Palet buta warna** (validator dataviz, mode terang): ketiga warna kategori `#1F6FB0` / `#E0A33A` / `#9E2A2B` lulus pemeriksaan lightness, chroma, separasi CVD (ΔE terburuk 29,1, protan), dan floor penglihatan normal. Amber berkontras < 3:1 terhadap latar, sehingga selalu didampingi label teks (legenda, tooltip, tabel, chip).
 - **pytest**: 34 tes lulus (`pytest -q`).
@@ -28,4 +29,4 @@ Pemeriksaan otomatis memakai skrip di halaman: jumlah penanda pos dihitung dari 
 **Tangkapan layar**
 - `tampilan-awal-1366.jpg`
 - `tampilan-detail-1366.jpg`
-- `tampilan-awal-1920.jpg`
+
