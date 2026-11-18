@@ -23,6 +23,7 @@ FILTER_GDB = "WADMKK = 'Kota Bekasi'"
 SKENARIO = {
     "utama": {
         "nama": "Skenario Utama (ρ = 2,93)",
+        "nama_pendek": "Utama",
         "keterangan": "Batas waktu 15/40 menit, bobot lansia ρ = 2,93.",
         "parameter_json": DIR_MENTAH / "utama" / "parameter_model.json",
         "eksak": DIR_MENTAH / "front_pareto_eksak.csv",
@@ -30,6 +31,7 @@ SKENARIO = {
     },
     "jakarta10": {
         "nama": "Sensitivitas batas 10 menit",
+        "nama_pendek": "Batas 10 menit",
         "keterangan": "Fungsi keanggotaan memakai batas baik 10 menit (bukan 15).",
         "parameter_json": DIR_MENTAH / "jakarta10" / "parameter_model.json",
         "eksak": DIR_MENTAH / "jakarta10" / "front_pareto_jakarta.csv",
@@ -37,6 +39,7 @@ SKENARIO = {
     },
     "rho1": {
         "nama": "Tanpa pembobotan lansia (ρ = 1)",
+        "nama_pendek": "Tanpa bobot lansia",
         "keterangan": "Permintaan sebanding jumlah penduduk (ρ = 1).",
         "parameter_json": DIR_MENTAH / "rho1" / "parameter_model.json",
         "eksak": DIR_MENTAH / "rho1" / "front_pareto_rho.csv",
@@ -62,7 +65,7 @@ P_MIN, P_MAKS = 1, 20
 P_DEFAULT = 10
 AMBANG_POS_INTI = 75.0               # persen
 
-WARNA_KATEGORI = {"<=15": "#2A6F97", "15-40": "#E0A33A", ">40": "#9E2A2B"}
+WARNA_KATEGORI = {"<=15": "#1F6FB0", "15-40": "#E0A33A", ">40": "#9E2A2B"}
 LABEL_KATEGORI = {"<=15": "≤ 15 menit", "15-40": "15–40 menit", ">40": "> 40 menit"}
 WARNA_AKSEN = "#3B3FB6"
 WARNA_LATAR = "#F6F5F2"
