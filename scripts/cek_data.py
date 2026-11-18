@@ -175,7 +175,7 @@ def cetak_ringkasan():
 
 
 def main():
-    os.environ.setdefault("PYTHONIOENCODING", "utf-8")
+    sys.stdout.reconfigure(encoding="utf-8")   # konsol Windows (cp1252) tidak bisa mencetak "≤"
     hasil = jalankan_pemeriksaan()
     lebar = max(len(n) for n, _, _ in hasil)
     for nama, ok, ket in hasil:
