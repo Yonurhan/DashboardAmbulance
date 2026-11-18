@@ -1,0 +1,57 @@
+kode_kelurahan,kecamatan,kelurahan,lat,lon,luas_km2,centroid_di_dalam
+32.75.01.1001,Bekasi Timur,Bekasijaya,-6.233359,107.01356,3.482,True
+32.75.01.1002,Bekasi Timur,Margahayu,-6.252954,107.010903,4.657,True
+32.75.01.1003,Bekasi Timur,Durenjaya,-6.237486,107.023249,3.639,True
+32.75.01.1004,Bekasi Timur,Arenjaya,-6.241163,107.034103,2.857,True
+32.75.02.1001,Bekasi Barat,Bintara,-6.226682,106.958499,3.398,True
+32.75.02.1002,Bekasi Barat,Kranji,-6.228224,106.975032,1.796,True
+32.75.02.1003,Bekasi Barat,Kotabaru,-6.215908,106.966124,2.012,True
+32.75.02.1004,Bekasi Barat,Bintarajaya,-6.23969,106.95118,2.687,True
+32.75.02.1005,Bekasi Barat,Jakasampurna,-6.243946,106.966267,5.006,True
+32.75.03.1001,Bekasi Utara,Kaliabang Tengah,-6.190036,107.00371,4.66,True
+32.75.03.1002,Bekasi Utara,Perwira,-6.207727,107.009018,2.29,True
+32.75.03.1003,Bekasi Utara,Harapanbaru,-6.216189,107.016779,2.535,True
+32.75.03.1004,Bekasi Utara,Teluk Pucung,-6.208759,107.026702,3.54,True
+32.75.03.1005,Bekasi Utara,Margamulya,-6.225105,107.002704,2.887,True
+32.75.03.1006,Bekasi Utara,Harapanjaya,-6.207743,106.989936,4.893,True
+32.75.04.1001,Bekasi Selatan,Pekayonjaya,-6.258465,106.98215,4.341,True
+32.75.04.1002,Bekasi Selatan,Margajaya,-6.244549,106.99588,1.671,True
+32.75.04.1003,Bekasi Selatan,Jakamulya,-6.270233,106.961502,3.078,True
+32.75.04.1004,Bekasi Selatan,Jakasetia,-6.267393,106.972344,3.857,True
+32.75.04.1005,Bekasi Selatan,Kayuringinjaya,-6.240166,106.985545,2.86,True
+32.75.05.1001,Rawalumbu,Bojong Rawalumbu,-6.283703,106.991433,6.386,True
+32.75.05.1002,Rawalumbu,Pengasinan,-6.270863,107.009515,3.493,True
+32.75.05.1003,Rawalumbu,Sepanjangjaya,-6.265176,106.996208,3.021,True
+32.75.05.1004,Rawalumbu,Bojongmenteng,-6.298617,106.983646,3.953,True
+32.75.06.1001,Medansatria,Medansatria,-6.198396,106.974005,3.854,True
+32.75.06.1002,Medansatria,Harapanmulya,-6.227108,106.991094,2.056,True
+32.75.06.1003,Medansatria,Pejuang,-6.184554,106.987858,5.895,True
+32.75.06.1004,Medansatria,Kalibaru,-6.21906,106.981204,1.409,True
+32.75.07.1003,Bantargebang,Bantargebang,-6.315631,106.984106,4.388,True
+32.75.07.1004,Bantargebang,Cikiwul,-6.338505,106.985158,5.464,True
+32.75.07.1007,Bantargebang,Ciketingudik,-6.353988,106.987677,4.359,True
+32.75.07.1008,Bantargebang,Sumurbatu,-6.345114,107.006844,5.032,True
+32.75.08.1001,Pondokgede,Jatiwaringin,-6.275291,106.917148,2.904,True
+32.75.08.1002,Pondokgede,Jatibening,-6.25991,106.950264,3.181,True
+32.75.08.1003,Pondokgede,Jatimakmur,-6.282819,106.930262,4.32,True
+32.75.08.1006,Pondokgede,Jatibening Baru,-6.262178,106.935616,3.407,True
+32.75.08.1007,Pondokgede,Jaticempaka,-6.262285,106.916388,3.621,True
+32.75.09.1001,Jatiasih,Jatimekar,-6.295826,106.947923,4.532,True
+32.75.09.1002,Jatiasih,Jatiasih,-6.297993,106.959115,3.629,True
+32.75.09.1003,Jatiasih,Jatikramat,-6.27764,106.946558,3.543,True
+32.75.09.1004,Jatiasih,Jatirasa,-6.295358,106.96878,2.973,True
+32.75.09.1005,Jatiasih,Jatiluhur,-6.319597,106.949663,4.129,True
+32.75.09.1006,Jatiasih,Jatisari,-6.338872,106.948417,5.456,True
+32.75.10.1001,Jatisampurna,Jatisampurna,-6.37051,106.922386,4.194,True
+32.75.10.1002,Jatisampurna,Jatikarya,-6.386724,106.913861,5.153,True
+32.75.10.1003,Jatisampurna,Jatiranggon,-6.338585,106.928721,3.225,True
+32.75.10.1004,Jatisampurna,Jatirangga,-6.363733,106.937748,4.545,True
+32.75.10.1005,Jatisampurna,Jatiraden,-6.353512,106.923682,3.077,True
+32.75.11.1001,Mustikajaya,Padurenan,-6.317731,107.005419,7.63,True
+32.75.11.1002,Mustikajaya,Cimuning,-6.320198,107.025144,5.482,True
+32.75.11.1003,Mustikajaya,Mustikajaya,-6.294181,107.028446,6.802,True
+32.75.11.1004,Mustikajaya,Mustikasari,-6.296402,107.008052,4.843,True
+32.75.12.1001,Pondokmelati,Jatirahayu,-6.293986,106.922899,3.6,True
+32.75.12.1002,Pondokmelati,Jatiwarna,-6.305088,106.928709,1.822,True
+32.75.12.1003,Pondokmelati,Jatimelati,-6.315367,106.932939,2.762,True
+32.75.12.1004,Pondokmelati,Jatimurni,-6.326499,106.93017,2.832,True

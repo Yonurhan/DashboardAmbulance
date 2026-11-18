@@ -1,0 +1,21 @@
+model,p,jumlah_titik,detik,solver,uji_enumerasi
+fuzzy,1,2,8.92,HiGHS (highspy),LULUS
+fuzzy,2,1,4.75,HiGHS (highspy),LULUS
+fuzzy,3,1,4.24,HiGHS (highspy),
+fuzzy,4,2,14.11,HiGHS (highspy),
+fuzzy,5,2,9.29,HiGHS (highspy),
+fuzzy,6,2,8.39,HiGHS (highspy),
+fuzzy,7,10,90.17,HiGHS (highspy),
+fuzzy,8,8,49.79,HiGHS (highspy),
+fuzzy,9,8,66.88,HiGHS (highspy),
+fuzzy,10,3,12.66,HiGHS (highspy),
+fuzzy,11,6,46.26,HiGHS (highspy),
+fuzzy,12,8,59.89,HiGHS (highspy),
+fuzzy,13,7,56.95,HiGHS (highspy),
+fuzzy,14,6,31.39,HiGHS (highspy),
+fuzzy,15,5,26.7,HiGHS (highspy),
+fuzzy,16,5,25.4,HiGHS (highspy),
+fuzzy,17,5,21.48,HiGHS (highspy),
+fuzzy,18,8,36.35,HiGHS (highspy),
+fuzzy,19,8,40.2,HiGHS (highspy),
+fuzzy,20,13,78.61,HiGHS (highspy),

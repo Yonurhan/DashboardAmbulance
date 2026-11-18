@@ -1,0 +1,22 @@
+# lingkungan
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.superpowers/
+.claude-flow/
+
+# data mentah Google dan turunan menit per pasangan (tidak boleh di Git)
+data/mentah/checkpoint_waktu_tempuh_final.csv
+*waktu_tempuh*
+data/mentah/*/koreksi_tfn.csv
+data/mentah/*/detail_kelurahan.csv
+data/mentah/*/matriks_tbar.csv
+data/mentah/*/hasil_sementara.jsonl
+
+# file besar
+*.gdb/
+*.gdb.zip
+
+# gambar referensi desain pihak ketiga
+reference_image/

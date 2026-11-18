@@ -1,0 +1,42 @@
+{
+  "FILE_WAKTU": "checkpoint_waktu_tempuh_final.csv",
+  "KOLOM_OPT": "menit_optimistic_0300",
+  "KOLOM_BG": "menit_bestguess_1100",
+  "KOLOM_PES": "menit_pessimistic_1800",
+  "FILE_PENDUDUK": "dataset-penduduk-usia-kelurahan-bekasi-2025.csv",
+  "KOLOM_P": "total_penduduk",
+  "KOLOM_L": "lansia_total",
+  "RHO": 2.93,
+  "T_BAIK": 10.0,
+  "PHI_BAIK": 0.95,
+  "T_BURUK": 40.0,
+  "PHI_BURUK": 0.05,
+  "BATAS_KLASIK": 10.0,
+  "BATAS_NETRAL": [
+    15.0,
+    40.0
+  ],
+  "TITIK_INTEGRAL": 4001,
+  "hash_file": {
+    "checkpoint_waktu_tempuh_final.csv": "23f5fe090f42d8c0",
+    "dataset-penduduk-usia-kelurahan-bekasi-2025.csv": "3a5941e022518ce9"
+  },
+  "skenario": "jakarta10",
+  "ETA": 1e-05,
+  "alpha": -0.1962959319444294,
+  "gamma": 25.000000000000004,
+  "tanda_checkpoint": "9ea19e3df47a16b3",
+  "solver": "HiGHS (highspy)",
+  "bobot_ukuran_netral": "permintaan",
+  "versi": {
+    "python": "3.11.0",
+    "pulp": "3.3.2",
+    "numpy": "2.3.5",
+    "pandas": "2.3.3"
+  },
+  "koreksi_tfn": {
+    "opt_gt_pes": 9,
+    "tM_naik_ke_tL": 273,
+    "tM_turun_ke_tU": 19
+  }
+}
