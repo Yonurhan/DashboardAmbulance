@@ -4,7 +4,6 @@ Jalankan dari root proyek:  .venv\\Scripts\\python scripts\\cek_data.py
 Ketidakcocokan hanya DILAPORKAN, tidak diperbaiki. Kode keluar 1 kalau ada yang gagal.
 """
 import json
-import os
 import sys
 from pathlib import Path
 
@@ -88,6 +87,66 @@ def baca_csv_eksak(path):
     return {(int(r["p"]), frozenset(str(r["faskes_dibuka"]).split(";"))): r for _, r in a.iterrows()}
 
 
+def cek_penelitian_eksak(id_s, hasil):
+    """Kecocokan dengan hasil penelitian: front CSV (dua arah), bobot, dan detail titik ke-1."""
+    out = []
+    a = pd.read_csv(config.SKENARIO[id_s]["eksak"])
+    a = a[a["model"] == "fuzzy"]
+    csv = {(int(r.p), frozenset(str(r.faskes_dibuka).split(";"))): r for r in a.itertuples()}
+    ol = {(s["p"], frozenset(s["pos"])): s for s in hasil["solusi"]}
+    hilang, lebih = set(csv) - set(ol), set(ol) - set(csv)
+    dz = max((max(abs(csv[k].Z1_fuzzy - ol[k]["Z1"]), abs(csv[k].Z2_fuzzy_menit - ol[k]["Z2"]))
+              for k in csv if k in ol), default=0.0)
+    t1 = sum(1 for k, r in csv.items() if r.titik_ke == 1 and k in ol and ol[k]["solusi_id"] != 1)
+    out.append(("P1. himpunan front = CSV penelitian (dua arah), Z sama",
+                not hilang and not lebih and dz <= 1e-9 and t1 == 0,
+                f"CSV {len(csv)}, olahan {len(ol)}, hilang {len(hilang)}, tambahan {len(lebih)}, "
+                f"maks |ΔZ| {dz:.1e}, titik_ke 1 ≠ solusi 1: {t1}"))
+
+    folder = config.SKENARIO[id_s]["matriks_kappa"].parent
+    b = pd.read_csv(folder / "bobot_kelurahan.csv").set_index("kode_kelurahan")["bobot_w"]
+    db_ = max(abs(b[k] - v) for k, v in hasil["bobot_kelurahan"].items())
+    out.append(("P2. bobot = bobot_kelurahan.csv penelitian", db_ <= 1e-9, f"maks |Δw| {db_:.1e}"))
+
+    path_det = folder / "detail_kelurahan.csv"
+    if path_det.exists():
+        det = pd.read_csv(path_det)
+        det = det[det["model"] == "fuzzy"]
+        satu = {s["p"]: s["hasil_kelurahan"] for s in hasil["solusi"] if s["solusi_id"] == 1}
+        bawah, atas = config.BATAS_MENIT
+        beda = 0
+        for r in det.itertuples():
+            v = satu[int(r.p)][r.kode_kelurahan]
+            kat = "<=15" if r.menit_bg <= bawah else ("15-40" if r.menit_bg <= atas else ">40")
+            if (v["pos_melayani"] != r.faskes_kappa_terbesar or abs(v["cakupan"] - r.kappa_terbesar) > 1e-6
+                    or v["kategori"]["biasa"] != kat):
+                beda += 1
+        out.append(("P3. detail titik ke-1 = detail_kelurahan.csv penelitian", beda == 0,
+                    f"{len(det)} baris, {beda} berbeda (pos κ terbesar, κ, kategori biasa)"))
+    else:
+        out.append(("P3. detail titik ke-1 = detail_kelurahan.csv penelitian", True,
+                    "dilewati: detail_kelurahan.csv tidak ada secara lokal"))
+    return out
+
+
+def cek_penelitian_mobgoa(hasil):
+    """Setiap titik MOBGOA di olahan ada di mobgoa_front.csv penelitian dengan Z sama."""
+    m = pd.read_csv(config.MOBGOA["path"])
+    m = m[m["tahap"] == hasil["skenario"]["id"]]
+    raw = {}
+    for r in m.itertuples():
+        raw.setdefault((int(r.p), frozenset(str(r.faskes_dibuka).split(";"))), (r.Z1, r.Z2_menit))
+    tidak, dz = 0, 0.0
+    for s in hasil["solusi"]:
+        z = raw.get((s["p"], frozenset(s["pos"])))
+        if z is None:
+            tidak += 1
+            continue
+        dz = max(dz, abs(z[0] - s["Z1"]), abs(z[1] - s["Z2"]))
+    return [("P1. setiap titik ada di mobgoa_front.csv penelitian, Z sama", tidak == 0 and dz <= 1e-8,
+             f"{len(hasil['solusi'])} titik, tidak ditemukan {tidak}, maks |ΔZ| {dz:.1e}")]
+
+
 def cek_matriks(id_s, d):
     """Pemeriksaan 8: K (dan T bila file lokal ada) sama dengan matriks hasil model."""
     s = config.SKENARIO[id_s]
@@ -149,6 +208,9 @@ def jalankan_pemeriksaan():
             tambah((f"[{label}] 6c. metrik = pct_* di CSV eksak", not sc, "; ".join(sc[:3]) or "OK"))
         bobot_ok = np.allclose([hasil["bobot_kelurahan"][k] for k in d["kel"]], d["w"], atol=1e-8)
         tambah((f"[{label}] bobot_kelurahan = w skenario", bool(bobot_ok), "OK" if bobot_ok else "berbeda"))
+        penelitian = cek_penelitian_eksak(id_s, hasil) if metode == "eksak" else cek_penelitian_mobgoa(hasil)
+        for n, ok, ket in penelitian:
+            tambah((f"[{label}] {n}", ok, ket))
 
     for id_s, d in model.items():
         ok, pesan = cek_matriks(id_s, d)

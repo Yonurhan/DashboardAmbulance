@@ -17,14 +17,16 @@ LAYER_GDB = "BATAS_DESAKEL_AR"
 FILTER_GDB = "WADMKK = 'Kota Bekasi'"
 
 # ------------------------------------------------------------------ skenario
-# parameter_json = None berarti memakai nilai bawaan data_bersama.siapkan()
+# parameter_json = None berarti memakai nilai bawaan data_bersama.siapkan().
+# Folder matriks_kappa juga berisi bobot_kelurahan.csv dan detail_kelurahan.csv hasil model
+# (dipakai cek_data.py untuk memastikan dasbor sama dengan hasil penelitian).
 SKENARIO = {
     "utama": {
         "nama": "Skenario Utama (ρ = 2,93)",
         "keterangan": "Batas waktu 15/40 menit, bobot lansia ρ = 2,93.",
-        "parameter_json": None,
+        "parameter_json": DIR_MENTAH / "utama" / "parameter_model.json",
         "eksak": DIR_MENTAH / "front_pareto_eksak.csv",
-        "matriks_kappa": None,
+        "matriks_kappa": DIR_MENTAH / "utama" / "matriks_kappa.csv",
     },
     "jakarta10": {
         "nama": "Sensitivitas batas 10 menit",
@@ -47,7 +49,7 @@ SKENARIO = {
 MOBGOA = {"path": DIR_MENTAH / "mobgoa_front.csv", "konfigurasi": None}
 
 ID_DEFAULT = ("utama", "mobgoa")
-NAMA_METODE = {"eksak": "Eksak", "mobgoa": "MOBGOA"}
+NAMA_METODE = {"eksak": "Eksak", "mobgoa": "MOBGOA (gabungan {seed} run)"}
 
 # ------------------------------------------------------------------ ukuran netral
 BATAS_MENIT = (15.0, 40.0)            # harus sama dengan data_bersama.BATAS_NETRAL
