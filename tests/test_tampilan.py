@@ -60,14 +60,49 @@ def test_panel_tanpa_data_menit_tidak_ada_menit_besar():
     assert _kelas(isi, "menit-besar") == []
 
 
-def test_rute_warna_kontras_dan_penanda_mulai_selesai():
+def test_rute_warna_kontras_tanpa_label_teks():
     lap = peta.lapisan_garis(DETAIL)
     garis = [x for x in lap if type(x).__name__ == "Polyline"]
     assert any(g.color == config.WARNA_RUTE for g in garis)
     assert config.WARNA_RUTE not in config.WARNA_KATEGORI.values()
-    penanda = [x for x in lap if type(x).__name__ == "DivMarker"]
-    kelas = sorted(m.iconOptions["className"] for m in penanda)
-    assert kelas == ["penanda-rute penanda-mulai", "penanda-rute penanda-selesai"]
-    mulai = [m for m in penanda if "mulai" in m.iconOptions["className"]][0]
-    selesai = [m for m in penanda if "selesai" in m.iconOptions["className"]][0]
-    assert mulai.position == DETAIL["rute"][0] and selesai.position == DETAIL["rute"][-1]
+    # tidak ada label teks Mulai/Selesai lagi
+    assert not any(type(x).__name__ == "DivMarker" for x in lap)
+    # ujung selesai (centroid kelurahan) ditandai titik kecil; ujung mulai (pos) cincin magenta di sekitar ikon
+    titik = [x for x in lap if type(x).__name__ == "CircleMarker"]
+    assert any(t.center == DETAIL["rute"][-1] and t.radius <= 6 for t in titik)
+    assert any(t.center == DETAIL["rute"][0] and t.color == config.WARNA_RUTE and t.fill is False for t in titik)
+
+
+def _cari(komp, nama_tipe):
+    hasil = [komp] if type(komp).__name__ == nama_tipe else []
+    anak = getattr(komp, "children", None)
+    for a in (anak if isinstance(anak, (list, tuple)) else [anak] if anak is not None else []):
+        if not isinstance(a, (str, int, float)):
+            hasil += _cari(a, nama_tipe)
+    return hasil
+
+
+def test_rute_berada_di_pane_di_atas_poligon():
+    """Rute di pane tersendiri (zIndex > 400 overlayPane tempat poligon), di bawah ikon pos."""
+    m = peta.peta_dasar({"type": "FeatureCollection", "features": [
+        {"type": "Feature", "properties": {}, "geometry": {"type": "Point", "coordinates": [107.0, -6.3]}}]}, None)
+    panes = {p.name: p for p in _cari(m, "Pane")}
+    assert "pane-rute" in panes and panes["pane-rute"].style["zIndex"] > 400
+    assert "lap-garis" in [g.id for g in _cari(panes["pane-rute"], "LayerGroup")]
+
+
+def test_pos_terpilih_memakai_ikon_rumah_sakit():
+    data = {"faskes": {"RS-01": {"kode": "RS-01", "nama": "RS A", "jenis": "RS", "lat": -6.2, "lng": 107.0},
+                       "PKM-01": {"kode": "PKM-01", "nama": "PKM B", "jenis": "PKM", "lat": -6.3, "lng": 107.1}}}
+    lap = peta.lapisan_pos({"pos": ["RS-01", "PKM-01"]}, data)
+    assert len(lap) == 2 and all(type(x).__name__ == "DivMarker" for x in lap)
+    assert all("ikon-faskes" in x.iconOptions["className"] and "<svg" in x.iconOptions["html"] for x in lap)
+    assert sorted(x.position for x in lap) == sorted([[-6.2, 107.0], [-6.3, 107.1]])
+
+
+def test_kandidat_lain_logo_abu_abu_kecil():
+    data = {"faskes": {"RS-01": {"kode": "RS-01", "nama": "RS A", "jenis": "RS", "lat": -6.2, "lng": 107.0},
+                       "PKM-01": {"kode": "PKM-01", "nama": "PKM B", "jenis": "PKM", "lat": -6.3, "lng": 107.1}}}
+    lap = peta.lapisan_kandidat({"pos": ["RS-01"]}, data)
+    assert len(lap) == 1 and type(lap[0]).__name__ == "DivMarker"
+    assert "ikon-kandidat" in lap[0].iconOptions["className"] and lap[0].iconOptions["iconSize"] == [14, 14]
