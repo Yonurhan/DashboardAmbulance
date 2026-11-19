@@ -1,4 +1,4 @@
-# Dasbor Lokasi Pos Gawat Darurat Kota Bekasi
+# Dashboard Lokasi Pos Gawat Darurat Kota Bekasi
 
 Prototipe dasbor web untuk skripsi *Optimasi Lokasi Pos Layanan Gawat Darurat Kota Bekasi Menggunakan Fuzzy Maximal Covering Location Problem dan Multi-Objective Binary Grasshopper Optimization Algorithm*.
 

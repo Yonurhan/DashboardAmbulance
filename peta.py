@@ -45,11 +45,10 @@ def peta_dasar(geojson, hideout):
     b = batas_wilayah(geojson)
     pusat = [(b[0][0] + b[1][0]) / 2, (b[0][1] + b[1][1]) / 2]
     # center + zoom wajib ada di dash-leaflet 1.1.3 (tanpa itu muncul galat "reading 'equals'").
-    # bounds TIDAK diberikan di awal: callback klien (callbacks.py) mengirimnya setelah peta dimuat,
-    # karena hanya perubahan bounds yang memicu fitBounds dengan padding panel.
+    # Penyesuaian ke batas wilayah dilakukan callback klien (callbacks.py) lewat prop viewport,
+    # agar padding panel diperhitungkan.
     return dl.Map(
         id="peta", center=pusat, zoom=11.5, zoomSnap=0.25,
-        boundsOptions={"paddingTopLeft": [350, 70], "paddingBottomRight": [230, 262]},
         zoomControl=False, attributionControl=True, className="peta",
         children=[
             dl.TileLayer(url=config.TILE_URL, attribution=config.TILE_ATRIBUSI, className="tile-osm",

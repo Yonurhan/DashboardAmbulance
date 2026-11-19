@@ -79,7 +79,7 @@ def daftarkan_callback(app, data):
                 peta.lapisan_pos(sol, data),
                 layout.kartu_metrik(ring, state["kondisi"], sol["solusi_id"], len(daftar)),
                 grafik.figur_pareto(daftar, sol["solusi_id"]),
-                f"p = {state['p']} · {len(daftar)} solusi · klik titik",
+                f"p = {state['p']} · {len(daftar)} solusi",
                 str(state["p"]))
 
     @app.callback(Output("lap-kandidat", "children"), Input("st-state", "data"), Input("sw-kandidat", "value"))
@@ -109,10 +109,24 @@ def daftarkan_callback(app, data):
         return peta.lapisan_pos_inti(daftar, data), (f"{len(daftar)} pos inti: muncul di ≥ "
                                                      f"{config.AMBANG_POS_INTI:g}% solusi, p = {state['p']}–{config.P_MAKS}.")
 
-    # Batas peta dikirim sekali setelah peta dimuat (n_loads), supaya fitBounds memakai padding panel.
+    # Peta dipaskan ke seluruh Kota Bekasi setelah dimuat dan setiap laci dibuka/dilipat.
+    # dash-leaflet 1.1.3 hanya menjalankan fitBounds lewat prop `viewport` (bukan `bounds`).
+    # Padding = ruang yang tertutup kolom kiri, bilah judul, legenda, dan laci (lihat style.css).
     app.clientside_callback(
-        "function(n, batas) { if (!n) { return window.dash_clientside.no_update; } return batas; }",
-        Output("peta", "bounds"), Input("peta", "n_loads"), State("st-batas", "data"))
+        """function(n, kelas, batas) {
+            // Ditunda agar peta sudah berukuran penuh dan transisi laci selesai sebelum fitBounds.
+            const bawah = (kelas || "").includes("terbuka") ? 380 : 110;
+            const pas = function () {
+                window.dash_clientside.set_props("peta", {viewport: {bounds: batas,
+                    options: {paddingTopLeft: [340, 80], paddingBottomRight: [30, bawah]}}});
+            };
+            // dua kali: saat muat awal komponen peta dimuat asinkron, jadi panggilan pertama bisa terlalu cepat
+            setTimeout(pas, 400);
+            setTimeout(pas, 1600);
+            return window.dash_clientside.no_update;
+        }""",
+        Output("peta", "viewport"), Input("peta", "n_loads"), Input("laci", "className"),
+        State("st-batas", "data"))
 
     @app.callback(Output("laci", "className"), Input("btn-laci", "n_clicks"), State("laci", "className"),
                   prevent_initial_call=True)

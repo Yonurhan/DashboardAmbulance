@@ -88,9 +88,7 @@ def buat_layout(data):
         peta.peta_dasar(data["geojson"], None),
         html.Header(className="bilah", children=[
             html.Div([html.Span(className="logo"),
-                      html.H1("Dasbor Lokasi Pos Gawat Darurat Kota Bekasi")], className="bilah-judul"),
-            html.P("Hasil optimasi lokasi pos (Fuzzy MCLP) untuk perencana Dinas Kesehatan / PSC 119",
-                   className="bilah-sub"),
+                      html.H1("Dashboard Lokasi Pos Gawat Darurat Kota Bekasi")], className="bilah-judul"),
         ]),
         html.Aside(className="kolom-kiri", children=[_kartu_kontrol(data),
                                                      html.Div(id="kartu-metrik", className="kartu")]),

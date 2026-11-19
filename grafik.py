@@ -11,7 +11,7 @@ WARNA_GRID = "#ECE9E3"
 
 def _tata_letak(fig, judul_x, judul_y):
     fig.update_layout(
-        margin={"l": 48, "r": 12, "t": 6, "b": 36}, height=150,
+        margin={"l": 48, "r": 12, "t": 6, "b": 36}, height=222,
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font={"family": FONT, "size": 11, "color": config.WARNA_TEKS},
         showlegend=False, hovermode="closest",
