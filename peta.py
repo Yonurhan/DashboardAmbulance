@@ -101,11 +101,18 @@ def lapisan_pos_inti(daftar, data):
 
 
 def lapisan_garis(detail):
-    """Garis lurus putus-putus dari centroid kelurahan ke pos yang melayani (ilustrasi)."""
+    """Jalur dari centroid kelurahan ke pos yang melayani.
+
+    Rute jalan OSRM (garis utuh) kalau sudah diambil; kalau belum, garis lurus putus-putus (ilustrasi).
+    """
     if not detail:
         return []
     awal, akhir = detail["garis"]
-    return [dl.Polyline(positions=[awal, akhir], color=config.WARNA_AKSEN, weight=2.5, dashArray="6 6",
-                        interactive=False),
-            dl.CircleMarker(center=awal, radius=4, color="#FFFFFF", weight=2, fillColor=config.WARNA_AKSEN,
-                            fillOpacity=1, interactive=False)]
+    if detail.get("rute"):
+        garis = [dl.Polyline(positions=detail["rute"], color="#FFFFFF", weight=7, opacity=0.9, interactive=False),
+                 dl.Polyline(positions=detail["rute"], color=config.WARNA_AKSEN, weight=3.5, interactive=False)]
+    else:
+        garis = [dl.Polyline(positions=[awal, akhir], color=config.WARNA_AKSEN, weight=2.5, dashArray="6 6",
+                             interactive=False)]
+    return garis + [dl.CircleMarker(center=awal, radius=4, color="#FFFFFF", weight=2,
+                                    fillColor=config.WARNA_AKSEN, fillOpacity=1, interactive=False)]

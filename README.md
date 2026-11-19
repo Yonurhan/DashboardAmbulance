@@ -30,7 +30,15 @@ Data mentah yang dibutuhkan di `data/mentah/`:
 .venv\Scripts\python scripts\cek_data.py
 ```
 
-`siapkan_data.py` menulis semua file ke `data/olahan/`. `cek_data.py` memeriksa struktur data, menghitung ulang Z1/Z2 dan persentase dengan fungsi dari `model/`, lalu memastikan hasilnya **sama dengan hasil penelitian**: front CSV, `bobot_kelurahan.csv`, `detail_kelurahan.csv`, dan `mobgoa_front.csv`. Ketidakcocokan hanya dilaporkan, tidak diperbaiki.
+`siapkan_data.py` menulis semua file ke `data/olahan/`, termasuk `menit_google.json` (menit Google per pasangan untuk panel detail). File menit ini **tidak masuk Git**; di komputer tanpa data mentah, panel detail tetap jalan tanpa angka menit.
+
+Rute jalan (sekali saja, butuh internet, ±12 menit untuk ±470 pasangan; aman dijalankan ulang karena rute yang sudah ada dilewati):
+
+```powershell
+.venv\Scripts\python scriptsmbil_rute.py
+```
+
+Rute diambil dari server demo OSRM (`router.project-osrm.org`, data © OpenStreetMap contributors) untuk setiap pasangan kelurahan → pos yang melayani di semua file hasil, lalu disimpan di `data/olahan/rute_osrm.json`. Dasbor hanya memakai bentuk jalurnya; angka menit tetap dari Google. Tanpa file ini, dasbor menampilkan garis lurus (ilustrasi). `cek_data.py` memeriksa struktur data, menghitung ulang Z1/Z2 dan persentase dengan fungsi dari `model/`, lalu memastikan hasilnya **sama dengan hasil penelitian**: front CSV, `bobot_kelurahan.csv`, `detail_kelurahan.csv`, dan `mobgoa_front.csv`. Ketidakcocokan hanya dilaporkan, tidak diperbaiki.
 
 ### Mengganti data MOBGOA atau menambah skenario
 
@@ -62,7 +70,7 @@ layout.py         kerangka tampilan dan isi kartu/panel
 callbacks.py      interaksi, dikelompokkan per proses DFD
 assets/           style.css, peta.js (gaya/klik GeoJSON), fonts/ (IBM Plex, OFL)
 olah/             fungsi penyiapan data (model_io, solusi, metrik, geo)
-scripts/          siapkan_data.py, cek_data.py
+scripts/          siapkan_data.py, cek_data.py, ambil_rute.py (rute OSRM)
 model/            model_eksak.py, data_bersama.py, mobgoa.py (salinan tanpa perubahan)
 data/mentah/      data input dan hasil model penelitian
 data/olahan/      data yang dibaca dasbor
@@ -114,7 +122,8 @@ Laporan uji manual ada di `docs/pengujian/`.
 ## Keterbatasan prototipe
 
 - Tile peta OpenStreetMap butuh internet. Poligon, pos, dan grafik tetap tampil tanpa internet.
-- Garis dari kelurahan ke pos adalah garis lurus (ilustrasi), bukan rute jalan. Rute OSRM direncanakan terpisah.
+- Rute jalan OSRM tidak memperhitungkan lalu lintas dan bisa berbeda dari rute yang dipakai Google untuk menghitung menit. Rute ditarik dari pos ke centroid kelurahan.
+- Angka menit di panel detail hanya muncul di komputer yang memiliki data mentah Google (file `menit_google.json` tidak di Git).
 - Belum ada fitur Admin, login, database, atau unggah file (DFD 1.0 dan 2.0).
 - Hasil MOBGOA baru tersedia untuk skenario utama.
 - Pemeriksaan matriks t̄ dan `detail_kelurahan.csv` hanya berjalan di komputer yang memiliki file itu, karena keduanya berisi menit per pasangan dan tidak masuk Git.

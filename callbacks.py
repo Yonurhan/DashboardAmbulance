@@ -115,7 +115,7 @@ def daftarkan_callback(app, data):
     app.clientside_callback(
         """function(n, kelas, batas) {
             // Ditunda agar peta sudah berukuran penuh dan transisi laci selesai sebelum fitBounds.
-            const bawah = (kelas || "").includes("terbuka") ? 380 : 110;
+            const bawah = (kelas || "").includes("terbuka") ? 395 : 110;
             const pas = function () {
                 window.dash_clientside.set_props("peta", {viewport: {bounds: batas,
                     options: {paddingTopLeft: [340, 80], paddingBottomRight: [30, bawah]}}});

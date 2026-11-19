@@ -41,4 +41,23 @@ def muat_semua(dir_olahan):
     kunci_urut = sorted(hasil, key=lambda k: (urutan_s.index(k.split("|")[0]), urutan_m.index(k.split("|")[1])))
     opsi = [{"label": label_opsi(hasil[k]), "value": k} for k in kunci_urut]
     return {"faskes": faskes, "geojson": geojson, "hasil": hasil, "metrik": metrik, "indeks": indeks,
-            "opsi_skenario": opsi}
+            "opsi_skenario": opsi, "menit": muat_menit(dir_olahan), "rute": muat_rute(dir_olahan)}
+
+
+def muat_menit(dir_olahan):
+    """Menit Google per pasangan faskes-kelurahan (file lokal, tidak ada di Git). None kalau tidak ada.
+
+    Bentuk: {"fas": {kode: baris}, "kel": {kode: kolom}, "opt"/"bg"/"pes": matriks [faskes][kelurahan]}.
+    """
+    path = dir_olahan / config.FILE_MENIT
+    if not path.exists():
+        return None
+    m = _baca(path)
+    return {"fas": {k: i for i, k in enumerate(m["fas"])}, "kel": {k: j for j, k in enumerate(m["kel"])},
+            **{c: m[c] for c in config.KONDISI.values()}}
+
+
+def muat_rute(dir_olahan):
+    """Rute jalan OSRM {"<kelurahan>|<faskes>": [[lat, lng], ...]}. Dict kosong kalau belum diambil."""
+    path = dir_olahan / config.FILE_RUTE
+    return _baca(path) if path.exists() else {}

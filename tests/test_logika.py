@@ -74,10 +74,13 @@ def test_detail_kelurahan_bobot_ikut_skenario(data):
     assert len(d_u["garis"]) == 2 and set(d_u["kategori"]) == {"lengang", "biasa", "sibuk"}
 
 
-def test_detail_tidak_ada_menit(data):
+def test_detail_memuat_menit_tercepat(data):
+    """Atas permintaan pengguna (revisi 2) panel menampilkan menit ke pos tercepat per kondisi."""
     s = logika.solusi_aktif(data, "utama|eksak", 5, 1)
     d = logika.detail_kelurahan(data, "utama|eksak", s, "32.75.01.1001")
-    assert not any("menit" in k for k in d)
+    assert d["menit"] == logika.menit_tercepat(data, s, "32.75.01.1001")
+    d0 = logika.detail_kelurahan({**data, "menit": None}, "utama|eksak", s, "32.75.01.1001")
+    assert d0["menit"] is None
 
 
 def test_ringkasan_metrik(data):
@@ -85,3 +88,37 @@ def test_ringkasan_metrik(data):
     r = logika.ringkasan_metrik(s, "lengang")
     assert r == {"Z1": s["Z1"], "Z2": s["Z2"], "persen_15": s["metrik"]["lengang"]["persen_15"],
                  "persen_40": s["metrik"]["lengang"]["persen_40"]}
+
+
+def test_menit_tercepat_bintarajaya_p2(data):
+    """Bintarajaya, Utama · MOBGOA p = 2: kondisi biasa 14,82 menit ke RS-35 (data Google mentah)."""
+    if data["menit"] is None:
+        pytest.skip("menit_google.json tidak ada (data Google hanya lokal)")
+    kode = [f["properties"]["kode"] for f in data["geojson"]["features"]
+            if f["properties"]["nama"] == "Bintarajaya"][0]
+    s = logika.solusi_aktif(data, "utama|mobgoa", 2, 1)
+    m = logika.menit_tercepat(data, s, kode)
+    assert m["biasa"]["pos"] == "RS-35"
+    assert m["biasa"]["menit"] == pytest.approx(14.82, abs=0.005)
+    assert set(m) == {"lengang", "biasa", "sibuk"}
+    # kategori di hasil olahan harus konsisten dengan menit ini
+    for k, v in m.items():
+        b, a = config.BATAS_MENIT
+        kat = "<=15" if v["menit"] <= b else ("15-40" if v["menit"] <= a else ">40")
+        assert kat == s["hasil_kelurahan"][kode]["kategori"][k]
+
+
+def test_menit_tercepat_tanpa_data(data):
+    s = logika.solusi_aktif(data, "utama|mobgoa", 2, 1)
+    assert logika.menit_tercepat({**data, "menit": None}, s, next(iter(s["hasil_kelurahan"]))) is None
+
+
+def test_detail_rute_jalan_bila_ada(data):
+    s = logika.solusi_aktif(data, "utama|eksak", 5, 1)
+    kel = "32.75.01.1001"
+    pos = s["hasil_kelurahan"][kel]["pos_melayani"]
+    jalur = [[-6.2, 107.0], [-6.21, 107.01], [-6.22, 107.02]]
+    d = logika.detail_kelurahan({**data, "rute": {f"{kel}|{pos}": jalur}}, "utama|eksak", s, kel)
+    assert d["rute"] == jalur
+    d0 = logika.detail_kelurahan({**data, "rute": {}}, "utama|eksak", s, kel)
+    assert d0["rute"] is None

@@ -13,6 +13,7 @@ data/mentah/*/koreksi_tfn.csv
 data/mentah/*/detail_kelurahan.csv
 data/mentah/*/matriks_tbar.csv
 data/mentah/*/hasil_sementara.jsonl
+data/olahan/menit_google.json
 
 # file besar
 *.gdb/

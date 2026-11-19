@@ -171,3 +171,21 @@ html, body { margin: 0; height: 100%; background: var(--latar); color: var(--tek
 .tabel { font-size: 11.5px; line-height: 1.25; }
 .tabel td, .tabel th { white-space: nowrap; }
 .tabel td:first-child { max-width: 130px; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---------- laci dan legenda selebar layar (revisi 2) ---------- */
+.laci { left: 12px; }
+.laci-isi { grid-template-columns: 0.72fr 1fr 1fr 1.3fr; }
+.legenda { left: 12px; right: 12px; max-width: none; justify-content: center; }
+.kolom-kiri { bottom: auto; max-height: calc(100% - var(--laci) - 140px); }
+.kartu-metrik .grid-metrik { gap: 2px 12px; }
+.kartu-metrik .grid-metrik .angka { font-size: 20px; }
+.grid-kategori .menit { font-family: var(--mono); font-size: 15px; font-weight: 500; }
+.grid-kategori small { color: var(--teks-3); font-size: 10.5px; }
+.grid-kategori .menit-pos { font-family: var(--mono); font-size: 10.5px; color: var(--teks-3); }
+.grid-kategori .chip { margin: 2px 0 4px; }
+.garis-ket.rute::before { border-top-style: solid; border-top-width: 3px; }
+.blok-pos { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; }
+.blok-pos .angka { font-size: 18px; }
+.panel-detail { max-height: calc(100% - var(--laci) - 90px); }
+.panel-detail h2 { margin-bottom: 6px; }
+.panel-detail .blok, .panel-detail .grid-detail { padding-bottom: 6px; }

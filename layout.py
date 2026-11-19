@@ -59,6 +59,7 @@ def _laci():
     return html.Div(id="laci", className="laci terbuka", children=[
         html.Button("Analisis", id="btn-laci", className="btn-laci", n_clicks=0),
         html.Div(className="laci-isi", children=[
+            html.Div(id="kartu-metrik", className="kartu kartu-analisis kartu-metrik"),
             html.Div(className="kartu kartu-analisis", children=[
                 html.Div([html.Span("Front Pareto", className="judul-kartu"),
                           html.Span(id="ket-pareto", className="ket")], className="kepala-kartu"),
@@ -90,8 +91,7 @@ def buat_layout(data):
             html.Div([html.Span(className="logo"),
                       html.H1("Dashboard Lokasi Pos Gawat Darurat Kota Bekasi")], className="bilah-judul"),
         ]),
-        html.Aside(className="kolom-kiri", children=[_kartu_kontrol(data),
-                                                     html.Div(id="kartu-metrik", className="kartu")]),
+        html.Aside(className="kolom-kiri", children=[_kartu_kontrol(data)]),
         html.Div(id="panel-detail", className="kartu panel-detail tersembunyi", children=[
             html.Button("×", id="btn-tutup", className="btn-tutup", n_clicks=0, title="Tutup panel"),
             html.Div(id="isi-detail"),
@@ -111,7 +111,7 @@ def kartu_metrik(ring, kondisi, solusi_id, jumlah):
         html.Div(className="grid-metrik", children=[
             html.Div([html.Div("Z1 · cakupan", className="label"),
                       html.Div(angka(ring["Z1"], 4), className="angka")]),
-            html.Div([html.Div("Z2 · waktu berbobot", className="label"),
+            html.Div([html.Div("Z2 · waktu", className="label"),
                       html.Div([angka(ring["Z2"], 2), html.Small(" mnt")], className="angka")]),
             html.Div([html.Div("≤ 15 menit", className="label"),
                       html.Div([angka(ring["persen_15"], 1), html.Small("%")], className="angka")]),
@@ -131,10 +131,22 @@ def tabel_terendah(baris):
     return html.Table([html.Thead(kepala), html.Tbody(isi)], className="tabel")
 
 
+def _sel_kategori(d, k):
+    """Satu kolom kondisi: nama kondisi, chip kategori, lalu menit dan pos tercepat (kalau ada)."""
+    isi = [html.Span(config.LABEL_KONDISI[k], className="kondisi"), chip_kategori(d["kategori"][k])]
+    if d.get("menit"):
+        m = d["menit"][k]
+        isi.append(html.Div([html.Span(angka(m["menit"], 1), className="menit"), html.Small(" mnt"),
+                             html.Div(f"ke {m['pos']}", className="menit-pos")]))
+    return html.Div(isi)
+
+
 def panel_detail(d):
-    """Isi panel detail kelurahan (DFD 5.0). Tidak menampilkan angka menit."""
+    """Isi panel detail kelurahan (DFD 5.0): data kelurahan, pos melayani, kategori dan menit tempuh."""
     cakupan = (html.Div("Tidak tercakup (κ = 0); ditampilkan pos terdekat", className="peringatan")
                if not d["tercakup"] else html.Div(angka(d["cakupan"], 3), className="angka"))
+    ket_garis = ("Rute jalan dari OSRM (data OpenStreetMap) ke pos yang melayani; menit dari Google."
+                 if d.get("rute") else "Garis lurus (ilustrasi), bukan rute jalan.")
     return [
         html.Div(className="kepala-detail", children=[
             html.Div(f"Kecamatan {d['kecamatan']}", className="label"), html.H2(d["nama"])]),
@@ -144,16 +156,17 @@ def panel_detail(d):
             html.Div([html.Div("Bobot permintaan", className="label"),
                       html.Div(angka(d["bobot"], 4), className="mono")]),
         ]),
-        html.Div(className="blok", children=[
-            html.Div("Pos yang melayani (κ tertinggi)", className="label"),
-            html.Div([html.Span(d["pos_kode"], className="kode"), d["pos_nama"]], className="pos-melayani"),
-            html.Div("Cakupan", className="label"), cakupan,
+        html.Div(className="blok blok-pos", children=[
+            html.Div([html.Div("Pos yang melayani (κ tertinggi)", className="label"),
+                      html.Div([html.Span(d["pos_kode"], className="kode"), d["pos_nama"]],
+                               className="pos-melayani")]),
+            html.Div([html.Div("Cakupan", className="label"), cakupan], className="kanan"),
         ]),
         html.Div(className="blok", children=[
-            html.Div("Kategori waktu tempuh", className="label"),
-            html.Div([html.Div([html.Span(config.LABEL_KONDISI[k], className="kondisi"),
-                                chip_kategori(d["kategori"][k])]) for k in config.KONDISI], className="grid-kategori"),
-            html.P("Kategori diukur ke pos tercepat pada tiap kondisi lalu lintas.", className="catatan"),
+            html.Div("Waktu tempuh ke pos tercepat", className="label"),
+            html.Div([_sel_kategori(d, k) for k in config.KONDISI], className="grid-kategori"),
+            html.P("Menit Google Routes (03.00 / 11.00 / 18.00) ke pos tercepat tiap kondisi.",
+                   className="catatan"),
         ]),
-        html.P("Garis lurus (ilustrasi), bukan rute jalan.", className="catatan garis-ket"),
+        html.P(ket_garis, className="catatan garis-ket" + (" rute" if d.get("rute") else "")),
     ]

@@ -54,8 +54,28 @@ def pos_inti(data, kunci, p_awal):
 
 
 # ============================================================ Proses 5.0 Tampilkan Detail Kelurahan
+def menit_tercepat(data, solusi, kode_kel):
+    """Menit Google ke pos tercepat pada tiap kondisi: {kondisi: {"menit", "pos"}}; None tanpa data lokal.
+
+    Definisinya sama dengan ukuran_netral di model (minimum waktu mentah atas pos terbuka).
+    """
+    m = data.get("menit")
+    if not m or kode_kel not in m["kel"]:
+        return None
+    j = m["kel"][kode_kel]
+    out = {}
+    for nama, kode in config.KONDISI.items():
+        menit, pos = min((m[kode][m["fas"][f]][j], f) for f in solusi["pos"])
+        out[nama] = {"menit": menit, "pos": pos}
+    return out
+
+
 def detail_kelurahan(data, kunci, solusi, kode_kel):
-    """Isi panel detail satu kelurahan (tanpa angka menit)."""
+    """Isi panel detail satu kelurahan.
+
+    menit: menit Google ke pos tercepat per kondisi (None tanpa data lokal).
+    rute: jalur jalan OSRM ke pos melayani (None kalau belum diambil; peta memakai garis lurus).
+    """
     info = _info_kelurahan(data)[kode_kel]
     v = solusi["hasil_kelurahan"][kode_kel]
     pos = data["faskes"][v["pos_melayani"]]
@@ -64,4 +84,6 @@ def detail_kelurahan(data, kunci, solusi, kode_kel):
             "bobot": data["hasil"][kunci]["bobot_kelurahan"][kode_kel],
             "pos_kode": pos["kode"], "pos_nama": pos["nama"], "cakupan": v["cakupan"],
             "tercakup": v["tercakup"], "kategori": dict(v["kategori"]),
-            "garis": [[info["centroid_lat"], info["centroid_lng"]], [pos["lat"], pos["lng"]]]}
+            "garis": [[info["centroid_lat"], info["centroid_lng"]], [pos["lat"], pos["lng"]]],
+            "menit": menit_tercepat(data, solusi, kode_kel),
+            "rute": data.get("rute", {}).get(f"{kode_kel}|{pos['kode']}")}

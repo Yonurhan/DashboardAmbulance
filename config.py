@@ -52,6 +52,13 @@ SKENARIO = {
 MOBGOA = {"path": DIR_MENTAH / "mobgoa_front.csv", "konfigurasi": None}
 
 ID_DEFAULT = ("utama", "mobgoa")
+
+# Menit Google per pasangan untuk panel detail: data Google, jadi hanya lokal (di-ignore Git).
+FILE_MENIT = "menit_google.json"
+# Rute jalan dari OSRM (data OpenStreetMap), dihitung sekali oleh scripts/ambil_rute.py.
+FILE_RUTE = "rute_osrm.json"
+OSRM_URL = "https://router.project-osrm.org/route/v1/driving/"
+OSRM_JEDA_DETIK = 1.1                 # jeda antarpermintaan (kebijakan server demo OSRM: maks 1/detik)
 NAMA_METODE = {"eksak": "Eksak", "mobgoa": "MOBGOA (gabungan {seed} run)"}
 
 # ------------------------------------------------------------------ ukuran netral

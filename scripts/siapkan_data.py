@@ -86,6 +86,11 @@ def main():
                   "jumlah_seed": isi["jumlah_seed"]}
         tulis_hasil(tahap, "mobgoa", model[tahap], isi["front"], sumber, laporan)
 
+    # Menit Google per pasangan untuk panel detail. File ini DI-IGNORE Git (data Google).
+    tulis_json(config.FILE_MENIT, {"fas": d0["fas"], "kel": d0["kel"],
+                                   **{k: [[round(float(x), 2) for x in baris] for baris in d0["D"][k]]
+                                      for k in config.KONDISI.values()}})
+
     tulis_json("laporan_siapkan.json", laporan)
     print("Selesai.")
 
