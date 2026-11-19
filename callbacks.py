@@ -141,4 +141,4 @@ def daftarkan_callback(app, data):
             return [], "kartu panel-detail tersembunyi", []
         sol = logika.solusi_aktif(data, state["kunci"], state["p"], state["solusi_id"])
         d = logika.detail_kelurahan(data, state["kunci"], sol, state["kel"])
-        return layout.panel_detail(d), "kartu panel-detail", peta.lapisan_garis(d)
+        return layout.panel_detail(d, state["kondisi"]), "kartu panel-detail", peta.lapisan_garis(d)

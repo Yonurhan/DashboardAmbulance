@@ -131,23 +131,30 @@ def tabel_terendah(baris):
     return html.Table([html.Thead(kepala), html.Tbody(isi)], className="tabel")
 
 
-def _sel_kategori(d, k):
-    """Satu kolom kondisi: nama kondisi, chip kategori, lalu menit dan pos tercepat (kalau ada)."""
+def _sel_kategori(d, k, kondisi):
+    """Satu kolom kondisi: nama kondisi, chip kategori, menit kecil (kolom terpilih ditandai)."""
     isi = [html.Span(config.LABEL_KONDISI[k], className="kondisi"), chip_kategori(d["kategori"][k])]
     if d.get("menit"):
-        m = d["menit"][k]
-        isi.append(html.Div([html.Span(angka(m["menit"], 1), className="menit"), html.Small(" mnt"),
-                             html.Div(f"ke {m['pos']}", className="menit-pos")]))
-    return html.Div(isi)
+        isi.append(html.Div([html.Span(angka(d["menit"][k]["menit"], 1), className="menit"), html.Small(" mnt")]))
+    return html.Div(isi, className="sel-kondisi" + (" terpilih" if k == kondisi else ""))
 
 
-def panel_detail(d):
-    """Isi panel detail kelurahan (DFD 5.0): data kelurahan, pos melayani, kategori dan menit tempuh."""
+def _menit_terpilih(d, kondisi):
+    """Angka menit besar untuk kondisi lalu lintas yang sedang dipilih."""
+    if not d.get("menit"):
+        return None
+    m = d["menit"][kondisi]
+    return html.Div(className="menit-blok", children=[
+        html.Div([html.Span(angka(m["menit"], 1), className="menit-besar"), html.Span(" menit", className="satuan")]),
+        html.Div([f"ke pos tercepat ", html.Span(m["pos"], className="kode"),
+                  f" · kondisi {config.LABEL_KONDISI[kondisi].lower()}"], className="menit-ket"),
+    ])
+
+
+def panel_detail(d, kondisi):
+    """Isi panel detail kelurahan (DFD 5.0): data kelurahan, pos melayani, waktu tempuh."""
     cakupan = (html.Div("Tidak tercakup (κ = 0); ditampilkan pos terdekat", className="peringatan")
                if not d["tercakup"] else html.Div(angka(d["cakupan"], 3), className="angka"))
-    ket_garis = ("Menit: Google (03.00/11.00/18.00) ke pos tercepat. Rute: OSRM (OpenStreetMap) ke pos melayani."
-                 if d.get("rute") else
-                 "Menit: Google (03.00/11.00/18.00) ke pos tercepat. Garis lurus (ilustrasi), bukan rute jalan.")
     return [
         html.Div(className="kepala-detail", children=[
             html.Div(f"Kecamatan {d['kecamatan']}", className="label"), html.H2(d["nama"])]),
@@ -163,9 +170,9 @@ def panel_detail(d):
                                className="pos-melayani")]),
             html.Div([html.Div("Cakupan", className="label"), cakupan], className="kanan"),
         ]),
-        html.Div(className="blok", children=[
+        html.Div(className="blok blok-waktu", children=[
             html.Div("Waktu tempuh ke pos tercepat", className="label"),
-            html.Div([_sel_kategori(d, k) for k in config.KONDISI], className="grid-kategori"),
+            _menit_terpilih(d, kondisi),
+            html.Div([_sel_kategori(d, k, kondisi) for k in config.KONDISI], className="grid-kategori"),
         ]),
-        html.P(ket_garis, className="catatan garis-ket" + (" rute" if d.get("rute") else "")),
     ]

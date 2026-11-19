@@ -100,19 +100,34 @@ def lapisan_pos_inti(daftar, data):
     return out
 
 
+def _penanda_rute(posisi, jenis, teks):
+    """Label kecil di ujung rute: jenis "mulai" (pos) atau "selesai" (kelurahan)."""
+    return dl.DivMarker(position=posisi, interactive=False, iconOptions={
+        "className": f"penanda-rute penanda-{jenis}", "html": f"<span>{teks}</span>",
+        "iconSize": [0, 0], "iconAnchor": [0, 0]})
+
+
 def lapisan_garis(detail):
-    """Jalur dari centroid kelurahan ke pos yang melayani.
+    """Jalur dari pos (mulai) ke centroid kelurahan (selesai), warna magenta agar kontras dengan wilayah.
 
     Rute jalan OSRM (garis utuh) kalau sudah diambil; kalau belum, garis lurus putus-putus (ilustrasi).
     """
     if not detail:
         return []
-    awal, akhir = detail["garis"]
+    centroid, pos = detail["garis"]
     if detail.get("rute"):
-        garis = [dl.Polyline(positions=detail["rute"], color="#FFFFFF", weight=7, opacity=0.9, interactive=False),
-                 dl.Polyline(positions=detail["rute"], color=config.WARNA_AKSEN, weight=3.5, interactive=False)]
+        jalur = detail["rute"]                       # OSRM: pos -> kelurahan
+        garis = [dl.Polyline(positions=jalur, color="#FFFFFF", weight=8, opacity=0.95, interactive=False),
+                 dl.Polyline(positions=jalur, color=config.WARNA_RUTE, weight=4, interactive=False)]
     else:
-        garis = [dl.Polyline(positions=[awal, akhir], color=config.WARNA_AKSEN, weight=2.5, dashArray="6 6",
+        jalur = [pos, centroid]
+        garis = [dl.Polyline(positions=jalur, color=config.WARNA_RUTE, weight=3, dashArray="6 6",
                              interactive=False)]
-    return garis + [dl.CircleMarker(center=awal, radius=4, color="#FFFFFF", weight=2,
-                                    fillColor=config.WARNA_AKSEN, fillOpacity=1, interactive=False)]
+    return garis + [
+        dl.CircleMarker(center=jalur[0], radius=6, color="#FFFFFF", weight=2.5, fillColor=config.WARNA_RUTE,
+                        fillOpacity=1, interactive=False),
+        dl.CircleMarker(center=jalur[-1], radius=6, color=config.WARNA_RUTE, weight=3, fillColor="#FFFFFF",
+                        fillOpacity=1, interactive=False),
+        _penanda_rute(jalur[0], "mulai", "Mulai · " + detail["pos_kode"]),
+        _penanda_rute(jalur[-1], "selesai", "Selesai · " + detail["nama"]),
+    ]
