@@ -70,7 +70,8 @@ def test_rute_warna_kontras_tanpa_label_teks():
     # ujung selesai (centroid kelurahan) ditandai titik kecil; ujung mulai (pos) cincin magenta di sekitar ikon
     titik = [x for x in lap if type(x).__name__ == "CircleMarker"]
     assert any(t.center == DETAIL["rute"][-1] and t.radius <= 6 for t in titik)
-    assert any(t.center == DETAIL["rute"][0] and t.color == config.WARNA_RUTE and t.fill is False for t in titik)
+    # tidak ada lingkaran di logo rumah sakit (ujung mulai): logo pos sendiri sudah jadi penandanya
+    assert not any(t.center == DETAIL["rute"][0] for t in titik)
 
 
 def _cari(komp, nama_tipe):

@@ -113,7 +113,7 @@ def lapisan_pos_inti(daftar, data):
 def lapisan_garis(detail):
     """Jalur dari pos (mulai) ke centroid kelurahan (selesai), magenta agar kontras dengan wilayah.
 
-    Mulai: cincin magenta mengelilingi ikon pos. Selesai: titik putih bergaris magenta di centroid.
+    Mulai: logo rumah sakit pos itu sendiri. Selesai: titik putih bergaris magenta di centroid.
     Rute jalan OSRM (garis utuh) kalau sudah diambil; kalau belum, garis lurus putus-putus (ilustrasi).
     """
     if not detail:
@@ -128,8 +128,6 @@ def lapisan_garis(detail):
         garis = [dl.Polyline(positions=jalur, color=config.WARNA_RUTE, weight=3, dashArray="6 6",
                              interactive=False)]
     return garis + [
-        dl.CircleMarker(center=jalur[0], radius=15, color=config.WARNA_RUTE, weight=3, fill=False,
-                        interactive=False),
         dl.CircleMarker(center=jalur[-1], radius=5, color=config.WARNA_RUTE, weight=3, fillColor="#FFFFFF",
                         fillOpacity=1, interactive=False),
     ]
