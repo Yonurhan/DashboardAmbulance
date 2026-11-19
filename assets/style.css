@@ -189,3 +189,9 @@ html, body { margin: 0; height: 100%; background: var(--latar); color: var(--tek
 .panel-detail { max-height: calc(100% - var(--laci) - 90px); }
 .panel-detail h2 { margin-bottom: 6px; }
 .panel-detail .blok, .panel-detail .grid-detail { padding-bottom: 6px; }
+.panel-detail { width: 340px; max-height: calc(100% - var(--laci) - 132px); }
+.panel-detail h2 { font-size: 17px; margin-bottom: 4px; }
+.panel-detail .label { margin: 6px 0 3px; }
+.kode { white-space: nowrap; }
+.pos-melayani { flex-wrap: nowrap; }
+.panel-detail .catatan { margin-top: 4px; }

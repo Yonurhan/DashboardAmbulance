@@ -145,8 +145,9 @@ def panel_detail(d):
     """Isi panel detail kelurahan (DFD 5.0): data kelurahan, pos melayani, kategori dan menit tempuh."""
     cakupan = (html.Div("Tidak tercakup (κ = 0); ditampilkan pos terdekat", className="peringatan")
                if not d["tercakup"] else html.Div(angka(d["cakupan"], 3), className="angka"))
-    ket_garis = ("Rute jalan dari OSRM (data OpenStreetMap) ke pos yang melayani; menit dari Google."
-                 if d.get("rute") else "Garis lurus (ilustrasi), bukan rute jalan.")
+    ket_garis = ("Menit: Google (03.00/11.00/18.00) ke pos tercepat. Rute: OSRM (OpenStreetMap) ke pos melayani."
+                 if d.get("rute") else
+                 "Menit: Google (03.00/11.00/18.00) ke pos tercepat. Garis lurus (ilustrasi), bukan rute jalan.")
     return [
         html.Div(className="kepala-detail", children=[
             html.Div(f"Kecamatan {d['kecamatan']}", className="label"), html.H2(d["nama"])]),
@@ -165,8 +166,6 @@ def panel_detail(d):
         html.Div(className="blok", children=[
             html.Div("Waktu tempuh ke pos tercepat", className="label"),
             html.Div([_sel_kategori(d, k) for k in config.KONDISI], className="grid-kategori"),
-            html.P("Menit Google Routes (03.00 / 11.00 / 18.00) ke pos tercepat tiap kondisi.",
-                   className="catatan"),
         ]),
         html.P(ket_garis, className="catatan garis-ket" + (" rute" if d.get("rute") else "")),
     ]
