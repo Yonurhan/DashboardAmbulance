@@ -1,0 +1,291 @@
+<title>Perhitungan Dashboard Pos Gawat Darurat</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script>
+window.MathJax = { tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] },
+  svg: { fontCache: "global" }, options: { enableMenu: false } };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
+<style>
+/* Tata letak: catatan kuliah satu kolom (72ch) dengan nomor langkah di margin kiri pada layar lebar;
+   rumus di blok sendiri, contoh angka di kotak bergaris. */
+:root {
+  --bg: #F6F5F1; --fg: #1B1A17; --fg-2: #5D594F; --garis: #DCD8CE; --panel: #FFFFFF;
+  --aksen: #3B3FB6; --aksen-lembut: #E9E9F8; --contoh: #1F6B4A; --contoh-lembut: #E6F2EC;
+  --waspada: #8A1A45; --waspada-lembut: #F8E8EF;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --serif: "IBM Plex Serif", Georgia, "Times New Roman", serif;
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #161619; --fg: #ECEAE3; --fg-2: #ADA89D; --garis: #33333A; --panel: #202025;
+  --aksen: #A3A6F4; --aksen-lembut: #282A45; --contoh: #86D0AB; --contoh-lembut: #1B3127;
+  --waspada: #F2A3C1; --waspada-lembut: #3A2130; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #161619; --fg: #ECEAE3; --fg-2: #ADA89D; --garis: #33333A; --panel: #202025;
+  --aksen: #A3A6F4; --aksen-lembut: #282A45; --contoh: #86D0AB; --contoh-lembut: #1B3127;
+  --waspada: #F2A3C1; --waspada-lembut: #3A2130; color-scheme: dark }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 16.5px; line-height: 1.65;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 44px 80px; }
+.isi { max-width: 780px; margin: 0 auto; display: flex; flex-direction: column; gap: 52px; }
+h1, h2, h3 { font-family: var(--serif); text-wrap: balance; line-height: 1.25; margin: 0; font-weight: 600; }
+h1 { font-size: clamp(28px, 4.2vw, 40px); letter-spacing: -.01em; }
+h2 { font-size: 25px; }
+h3 { font-size: 18px; }
+p { margin: 0; }
+section { display: flex; flex-direction: column; gap: 14px; scroll-margin-top: 16px; }
+.label { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--aksen); }
+.lead { font-size: 18.5px; color: var(--fg-2); }
+code { font-family: var(--mono); font-size: .86em; background: var(--aksen-lembut); padding: 1px 6px; border-radius: 5px; }
+ul, ol { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 6px; }
+.rumus { overflow-x: auto; overflow-y: hidden; padding: 6px 0; }
+mjx-container[display="true"] { margin: 6px 0 !important; }
+.contoh { background: var(--contoh-lembut); border-left: 3px solid var(--contoh); border-radius: 0 10px 10px 0; padding: 14px 18px;
+  display: flex; flex-direction: column; gap: 8px; }
+.contoh .judul { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--contoh); }
+.catat { background: var(--waspada-lembut); border-left: 3px solid var(--waspada); border-radius: 0 10px 10px 0; padding: 14px 18px;
+  display: flex; flex-direction: column; gap: 6px; }
+.catat .judul { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--waspada); }
+.tabel-wadah { overflow-x: auto; border: 1px solid var(--garis); border-radius: 12px; background: var(--panel); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 9px 14px; border-bottom: 1px solid var(--garis); vertical-align: top; }
+th { font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--fg-2); }
+tr:last-child td { border-bottom: none; }
+td.angka { text-align: right; font-family: var(--mono); font-size: 13.5px; }
+.alur { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; counter-reset: langkah; }
+.alur a { display: flex; flex-direction: column; gap: 2px; background: var(--panel); border: 1px solid var(--garis); border-radius: 10px;
+  padding: 10px 12px; text-decoration: none; color: var(--fg); font-size: 14px; line-height: 1.35; }
+.alur a span { font-family: var(--mono); font-size: 11.5px; color: var(--aksen); }
+.alur a:hover, .alur a:focus-visible { border-color: var(--aksen); outline: none; }
+figure { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.grafik { background: var(--panel); border: 1px solid var(--garis); border-radius: 12px; padding: 10px; overflow-x: auto; }
+.grafik svg { display: block; width: 100%; min-width: 520px; height: auto; }
+.grafik .grid { stroke: var(--garis); stroke-width: 1; }
+.grafik .tik { font: 12px var(--mono); fill: var(--fg-2); }
+.grafik .judul-sumbu { font: 12.5px var(--sans); fill: var(--fg-2); }
+.grafik .kurva { fill: none; stroke: var(--aksen); stroke-width: 2.5; }
+.grafik .tfn { fill: var(--contoh); fill-opacity: .22; stroke: var(--contoh); stroke-width: 1.5; }
+.grafik .titik { fill: var(--panel); stroke: var(--aksen); stroke-width: 2; }
+.grafik .anot { font: 12.5px var(--sans); fill: var(--fg); }
+.grafik .kappa { stroke: var(--contoh); stroke-width: 2.5; stroke-dasharray: 5 4; }
+figcaption { font-size: 14px; color: var(--fg-2); }
+details { background: var(--panel); border: 1px solid var(--garis); border-radius: 12px; padding: 12px 16px; }
+details + details { margin-top: -4px; }
+summary { cursor: pointer; font-weight: 600; }
+summary:focus-visible { outline: 2px solid var(--aksen); outline-offset: 3px; border-radius: 4px; }
+details[open] summary { margin-bottom: 8px; }
+details p { color: var(--fg-2); }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<main class="isi">
+  <header style="display:flex;flex-direction:column;gap:14px">
+    <div class="label">Bahan presentasi · Dosen pembimbing matematika</div>
+    <h1>Perhitungan di Balik Dashboard Lokasi Pos Gawat Darurat</h1>
+    <p class="lead">Semua angka yang tampil di dashboard berasal dari rumus model Fuzzy MCLP di skripsi. Halaman ini menelusuri perhitungannya dari data mentah sampai ke peta, dengan satu contoh nyata yang diikuti di setiap langkah: Kelurahan Bojong Rawalumbu dan pos PKM-51 pada skenario utama, MOBGOA, p = 10.</p>
+  </header>
+
+  <nav class="alur" aria-label="Urutan perhitungan">
+    <a href="#bobot"><span>1</span>Bobot permintaan</a>
+    <a href="#tfn"><span>2</span>Waktu tempuh fuzzy</a>
+    <a href="#sigmoid"><span>3</span>Fungsi cakupan</a>
+    <a href="#kappa"><span>4</span>Derajat cakupan κ</a>
+    <a href="#tujuan"><span>5</span>Tujuan Z1 dan Z2</a>
+    <a href="#pareto"><span>6</span>Front Pareto</a>
+    <a href="#dashboard"><span>7</span>Angka di dashboard</a>
+    <a href="#validasi"><span>8</span>Validasi</a>
+  </nav>
+
+  <section class="baca">
+    <div class="label">Notasi</div>
+    <h2>Simbol yang dipakai</h2>
+    <div class="tabel-wadah"><table>
+      <thead><tr><th>Simbol</th><th>Arti</th></tr></thead>
+      <tbody>
+        <tr><td>\(i \in I\)</td><td>kelurahan (titik permintaan), \(|I| = 56\); diwakili centroid poligon BIG</td></tr>
+        <tr><td>\(j \in J\)</td><td>faskes kandidat pos, \(|J| = 99\) (44 RS, 55 puskesmas)</td></tr>
+        <tr><td>\(S \subseteq J\), \(|S| = p\)</td><td>himpunan pos yang dibuka (satu solusi)</td></tr>
+        <tr><td>\(P_i,\ L_i\)</td><td>jumlah penduduk dan lansia 65+ kelurahan \(i\)</td></tr>
+        <tr><td>\(t^{\text{opt}}_{ij},\ t^{\text{bg}}_{ij},\ t^{\text{pes}}_{ij}\)</td><td>waktu tempuh Google Routes (menit) dari faskes \(j\) ke kelurahan \(i\): optimistic 03.00, best guess 11.00, pessimistic 18.00</td></tr>
+        <tr><td>\(\varphi(t)\)</td><td>derajat cakupan untuk waktu tempuh \(t\)</td></tr>
+        <tr><td>\(\kappa_{ij},\ \bar t_{ij}\)</td><td>derajat cakupan fuzzy dan waktu tempuh representatif pasangan \(ij\)</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="bobot">
+    <div class="label">Langkah 1</div>
+    <h2>Bobot permintaan kelurahan</h2>
+    <p>Lansia lebih sering membutuhkan layanan gawat darurat, sehingga setiap lansia dihitung \(\rho\) kali. Bobot dinormalkan agar totalnya 1, sehingga Z1 dan Z2 menjadi rata-rata berbobot.</p>
+    <div class="rumus">\[ d_i = P_i + (\rho - 1)\,L_i, \qquad w_i = \frac{d_i}{\sum_{k \in I} d_k}, \qquad \sum_{i \in I} w_i = 1 \]</div>
+    <p>Skenario utama memakai \(\rho = 2{,}93\) (rasio laju panggilan lansia 65+, Krammel dkk., 2023). Skenario "Tanpa bobot lansia" memakai \(\rho = 1\), sehingga \(w_i\) sebanding dengan jumlah penduduk saja.</p>
+    <div class="contoh">
+      <div class="judul">Contoh · Bojong Rawalumbu</div>
+      <p>\(P = 80.505\), \(L = 4.409\): \(d = 80.505 + 1{,}93 \times 4.409 = 89.014{,}37\). Total \(\sum d = 2.909.440{,}06\), jadi \(w = 0{,}0306\). Angka ini yang tampil sebagai "Bobot permintaan" di panel detail.</p>
+    </div>
+  </section>
+
+  <section id="tfn">
+    <div class="label">Langkah 2</div>
+    <h2>Waktu tempuh sebagai bilangan fuzzy segitiga</h2>
+    <p>Ketiga waktu Google dijadikan bilangan fuzzy segitiga (TFN) \((t^L, t^M, t^U)\). Karena Google kadang memberi optimistic lebih besar dari pessimistic, atau best guess di luar keduanya, urutannya dikoreksi agar \(t^L \le t^M \le t^U\):</p>
+    <div class="rumus">\[ t^L_{ij} = \min(t^{\text{opt}}_{ij}, t^{\text{pes}}_{ij}), \quad t^U_{ij} = \max(t^{\text{opt}}_{ij}, t^{\text{pes}}_{ij}), \quad t^M_{ij} = \min\!\big(\max(t^{\text{bg}}_{ij},\, t^L_{ij}),\, t^U_{ij}\big) \]</div>
+    <p>Fungsi keanggotaannya segitiga dengan puncak di \(t^M\):</p>
+    <div class="rumus">\[ \mu_{ij}(t) = \begin{cases} \dfrac{t - t^L}{t^M - t^L}, & t^L \le t \le t^M \\[2mm] \dfrac{t^U - t}{t^U - t^M}, & t^M \le t \le t^U \\[2mm] 0, & \text{lainnya} \end{cases} \]</div>
+    <p>Dari 5.544 pasangan (99 × 56): 9 pasangan optimistic dan pessimistic-nya ditukar, 273 best guess dinaikkan ke \(t^L\), dan 19 diturunkan ke \(t^U\). Waktu representatif untuk tujuan kedua adalah rata-rata ketiga titik TFN:</p>
+    <div class="rumus">\[ \bar t_{ij} = \frac{t^L_{ij} + t^M_{ij} + t^U_{ij}}{3} \]</div>
+    <div class="contoh">
+      <div class="judul">Contoh · Bojong Rawalumbu ← PKM-51</div>
+      <p>Google: opt = 9,867, bg = 9,63, pes = 13,5 menit. Best guess 9,63 lebih kecil dari \(t^L = 9{,}867\), jadi dinaikkan: TFN = (9,867; 9,867; 13,5). Maka \(\bar t = (9{,}867 + 9{,}867 + 13{,}5)/3 = 11{,}078\) menit.</p>
+    </div>
+  </section>
+
+  <section id="sigmoid">
+    <div class="label">Langkah 3</div>
+    <h2>Fungsi derajat cakupan (sigmoid)</h2>
+    <p>Model MCLP klasik memakai batas tajam: tercakup kalau waktu ≤ 15 menit, tidak tercakup kalau lebih. Di sini cakupan turun mulus dari hampir 1 ke hampir 0:</p>
+    <div class="rumus">\[ \varphi(t) = \frac{1}{1 + e^{-\alpha\,(t - \gamma)}}, \qquad \alpha \lt 0 \]</div>
+    <p>Parameter dipilih dari dua titik jangkar: \(\varphi(15) = 0{,}95\) dan \(\varphi(40) = 0{,}05\). Dari \(\ln\!\big(1/\varphi - 1\big) = -\alpha\,(t - \gamma)\) untuk kedua titik:</p>
+    <div class="rumus">\[ \alpha = -\frac{\ln\!\big(\tfrac{1}{0{,}05}-1\big) - \ln\!\big(\tfrac{1}{0{,}95}-1\big)}{40 - 15} = -\frac{2{,}944 + 2{,}944}{25} = -0{,}23556, \qquad \gamma = 15 + \frac{\ln(1/0{,}95 - 1)}{\alpha} = 27{,}5 \]</div>
+    <p>Jadi \(\gamma\) adalah waktu dengan cakupan tepat 0,5, dan \(|\alpha|\) mengatur kecuraman penurunan. Pada skenario sensitivitas 10 menit, jangkar pertama menjadi \(\varphi(10) = 0{,}95\), sehingga \(\alpha = -0{,}19630\) dan \(\gamma = 25\).</p>
+    <figure>
+      <div class="grafik">{{GRAFIK}}</div>
+      <figcaption>Kurva \(\varphi(t)\) skenario utama. Segitiga hijau: TFN contoh (tinggi diperkecil agar terlihat). Garis putus-putus: nilai κ hasil langkah 4.</figcaption>
+    </figure>
+  </section>
+
+  <section id="kappa">
+    <div class="label">Langkah 4</div>
+    <h2>Derajat cakupan fuzzy κ</h2>
+    <p>Karena waktu tempuh berupa TFN, cakupan pasangan \(ij\) dihitung sebagai rata-rata tertimbang \(\varphi\) di sepanjang selang \([t^L, t^U]\):</p>
+    <div class="rumus">\[ \kappa_{ij} = \frac{\displaystyle\int_{t^L}^{t^U} \varphi(t)\,\big[\varphi(t)\,(1 - \varphi(t))\big]\,\mu_{ij}(t)\,dt}{\displaystyle\int_{t^L}^{t^U} \varphi(t)\,(1 - \varphi(t))\,\mu_{ij}(t)\,dt} \]</div>
+    <p>Bobotnya \(\varphi(1-\varphi)\,\mu\). Karena \(\varphi'(t) = \alpha\,\varphi(t)\,(1-\varphi(t))\), bobot ini sebanding dengan \(|\varphi'(t)|\,\mu(t)\): bagian TFN yang jatuh di daerah kurva paling curam (sekitar \(\gamma\)) mendapat pengaruh terbesar. Karena κ adalah rata-rata tertimbang dari \(\varphi\) dan \(\varphi\) menurun, selalu berlaku</p>
+    <div class="rumus">\[ \varphi(t^U_{ij}) \;\le\; \kappa_{ij} \;\le\; \varphi(t^L_{ij}) \]</div>
+    <p>Integral dihitung numerik dengan aturan trapesium pada 4.001 titik yang membagi rata \([t^L, t^U]\). Kalau TFN-nya praktis satu titik (\(t^U - t^L \lt 10^{-9}\)), dipakai \(\kappa = \varphi(t^M)\). Kode model menghentikan program bila ada κ yang keluar dari selang di atas.</p>
+    <div class="contoh">
+      <div class="judul">Contoh · Bojong Rawalumbu ← PKM-51</div>
+      <p>\(\varphi(t^L) = \varphi(9{,}867) = 0{,}9845\) dan \(\varphi(t^U) = \varphi(13{,}5) = 0{,}9644\). Integral memberi \(\kappa = 0{,}9782\), memang di antara keduanya. Inilah nilai "Cakupan 0,978" di panel detail.</p>
+    </div>
+  </section>
+
+  <section id="tujuan">
+    <div class="label">Langkah 5</div>
+    <h2>Dua fungsi tujuan</h2>
+    <p>Untuk satu solusi \(S\) (himpunan \(p\) pos yang dibuka), setiap kelurahan dinilai dari pos terbaiknya:</p>
+    <div class="rumus">\[ Z_1(S) = \sum_{i \in I} w_i \,\max_{j \in S} \kappa_{ij} \;\;(\text{maksimumkan}), \qquad Z_2(S) = \sum_{i \in I} w_i \,\min_{j \in S} \bar t_{ij} \;\;(\text{minimumkan}) \]</div>
+    <p>Karena \(\sum w_i = 1\), Z1 adalah rata-rata cakupan berbobot (0 sampai 1) dan Z2 adalah rata-rata waktu tempuh berbobot dalam menit. Perhatikan bahwa maksimum κ dan minimum \(\bar t\) diambil terpisah; keduanya biasanya, tetapi tidak selalu, menunjuk pos yang sama.</p>
+    <div class="contoh">
+      <div class="judul">Contoh · solusi p = 10 (MOBGOA, solusi 1)</div>
+      <p>Untuk Bojong Rawalumbu, κ ke sepuluh pos berkisar 0,214 (RS-37) sampai 0,978 (PKM-51), dan \(\bar t\) berkisar 11,08 (PKM-51) sampai 42,53 menit. Sumbangannya ke Z1 adalah \(0{,}0306 \times 0{,}978\) dan ke Z2 \(0{,}0306 \times 11{,}08\). Dijumlahkan atas 56 kelurahan: \(Z_1 = 0{,}9769\) dan \(Z_2 = 9{,}65\) menit, sama dengan kartu "Solusi aktif".</p>
+    </div>
+  </section>
+
+  <section id="pareto">
+    <div class="label">Langkah 6</div>
+    <h2>Front Pareto: eksak dan MOBGOA</h2>
+    <h3>Solver eksak (MILP)</h3>
+    <p>Dengan variabel biner \(y_j\) (pos dibuka) dan variabel penugasan \(x_{ij}, z_{ij} \in [0,1]\):</p>
+    <div class="rumus">\[ \begin{aligned} Z_1 &= \textstyle\sum_{i,j} w_i \kappa_{ij} x_{ij}, & Z_2 &= \textstyle\sum_{i,j} w_i \bar t_{ij} z_{ij} \\ \textstyle\sum_j y_j &= p, & \textstyle\sum_j x_{ij} &\le 1, \quad \textstyle\sum_j z_{ij} = 1, \\ x_{ij} &\le y_j, & z_{ij} &\le y_j, \qquad y_j \in \{0,1\} \end{aligned} \]</div>
+    <p>Untuk \(y\) tetap, optimum memilih \(x_{ij}=1\) pada pos dengan κ terbesar dan \(z_{ij}=1\) pada pos dengan \(\bar t\) terkecil, sehingga nilainya sama dengan rumus langkah 5. Front Pareto dicari dengan <em>ε-constraint</em> dua tahap (leksikografis), diulang sampai tidak layak:</p>
+    <ol>
+      <li>Maksimumkan \(Z_1\) dengan syarat \(Z_2 \le \varepsilon\) (tahap pertama tanpa syarat), hasilnya \(Z_1^*\).</li>
+      <li>Minimumkan \(Z_2\) dengan syarat \(Z_1 \ge Z_1^*\) dan \(Z_2 \le \varepsilon\). Hasilnya satu titik Pareto.</li>
+      <li>Set \(\varepsilon = Z_2 - \eta\) dengan \(\eta = 10^{-5}\) menit, lalu ulangi.</li>
+    </ol>
+    <p>Solver: HiGHS lewat PuLP dengan gap optimalitas 0. Untuk p = 1 dan p = 2 hasilnya juga dicocokkan dengan enumerasi seluruh kombinasi.</p>
+    <h3>MOBGOA</h3>
+    <p>MOBGOA adalah metaheuristik: tiap "belalang" adalah vektor 99 bit dengan tepat \(p\) bit bernilai 1. Posisi diperbarui dengan langkah GOA \(\Delta X\) yang memakai fungsi gaya sosial \(s(r) = f e^{-r/l} - e^{-r}\) (\(f = 0{,}5\), \(l = 1{,}5\)), lalu bit disalin dari target arsip dan dibalik dengan peluang \(\max(|\tanh(20\,\Delta X)|,\, 1/99)\), kemudian diperbaiki agar tepat \(p\). Arsip menyimpan solusi tak terdominasi (kapasitas 50). Parameter run utama: 200 belalang, 2.000 iterasi, 30 seed per \(p\).</p>
+    <h3>Front MOBGOA di dashboard</h3>
+    <p>Dashboard menggabungkan arsip akhir ke-30 seed, membuang himpunan pos yang sama, lalu menyaring yang tak terdominasi. Solusi \(S_a\) mendominasi \(S_b\) bila</p>
+    <div class="rumus">\[ Z_1(S_a) \ge Z_1(S_b) \;\text{ dan }\; Z_2(S_a) \le Z_2(S_b), \text{ dengan salah satu tegas} \]</div>
+    <p>Penyaringan memakai fungsi <code>non_dominasi</code> dari kode MOBGOA. Ini front gabungan 30 run, bukan ukuran akurasi per run yang dilaporkan di skripsi.</p>
+  </section>
+
+  <section id="dashboard">
+    <div class="label">Langkah 7</div>
+    <h2>Angka yang dihitung untuk tampilan</h2>
+
+    <h3>Pos yang melayani dan cakupan kelurahan</h3>
+    <div class="rumus">\[ j^*(i) = \arg\max_{j \in S} \kappa_{ij} \;\;(\text{seri: } \bar t_{ij} \text{ terkecil}), \qquad \text{cakupan}_i = \kappa_{i\,j^*(i)} \]</div>
+    <p>Ini persis suku \(\max_{j\in S}\kappa_{ij}\) di Z1. Garis rute di peta ditarik ke pos \(j^*(i)\), dan tabel "10 kelurahan cakupan terendah" mengurutkan cakupan ini dari yang terkecil.</p>
+
+    <h3>Kategori waktu tempuh dan menit di panel</h3>
+    <p>Untuk evaluasi, dashboard memakai waktu Google mentah (bukan TFN) ke pos tercepat pada kondisi \(c \in \{\text{lengang}, \text{biasa}, \text{sibuk}\}\):</p>
+    <div class="rumus">\[ \tau^c_i = \min_{j \in S} t^c_{ij}, \qquad \text{kategori}^c_i = \begin{cases} \le 15 & \tau^c_i \le 15 \\ 15\text{–}40 & 15 \lt \tau^c_i \le 40 \\ \gt 40 & \tau^c_i \gt 40 \end{cases} \]</div>
+    <p>Lengang memakai \(t^{\text{opt}}\) (03.00), biasa \(t^{\text{bg}}\) (11.00), sibuk \(t^{\text{pes}}\) (18.00). Batas 15 dan 40 menit tetap sama di semua skenario agar antarskenario bisa dibandingkan. Angka menit besar di panel detail adalah \(\tau^c_i\), dan kodenya menunjukkan pos tercepat itu. Kalau pos tercepat berbeda dari \(j^*(i)\), panel memberi catatan.</p>
+
+    <h3>Persentase permintaan berbobot (kartu metrik)</h3>
+    <div class="rumus">\[ \%_{\le B}^{\,c} = 100 \sum_{i \in I} w_i \,\mathbf{1}\big[\tau^c_i \le B\big], \qquad B \in \{15, 40\} \]</div>
+    <p>Ini "ukuran netral" di kode model (<code>ukuran_netral</code>). Bobotnya \(w_i\), jadi pada skenario utama lansia ikut berbobot \(\rho\); pada skenario \(\rho = 1\) angka ini menjadi persentase penduduk.</p>
+    <div class="contoh">
+      <div class="judul">Contoh · p = 10, kondisi biasa</div>
+      <p>\(\%_{\le 15} = 98{,}4\%\) dan \(\%_{\le 40} = 100{,}0\%\). Untuk Bojong Rawalumbu: \(\tau^{\text{lengang}} = 8{,}22\) (RS-18), \(\tau^{\text{biasa}} = 9{,}63\) (PKM-51), \(\tau^{\text{sibuk}} = 13{,}5\) (PKM-51); ketiganya kategori ≤ 15.</p>
+    </div>
+
+    <h3>Kenaikan cakupan</h3>
+    <div class="rumus">\[ Z_1^{\max}(p) = \max_{S \in \mathcal{F}_p} Z_1(S), \qquad \Delta(p) = Z_1^{\max}(p) - Z_1^{\max}(p-1) \]</div>
+    <p>\(\mathcal F_p\) adalah himpunan solusi pada front Pareto untuk \(p\). Grafik menunjukkan hasil yang makin kecil (<em>diminishing returns</em>):</p>
+    <div class="tabel-wadah"><table>
+      <thead><tr><th>p</th><th style="text-align:right">\(Z_1^{\max}\)</th><th style="text-align:right">\(\Delta\)</th><th>p</th><th style="text-align:right">\(Z_1^{\max}\)</th><th style="text-align:right">\(\Delta\)</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td class="angka">0,6792</td><td class="angka">—</td><td>6</td><td class="angka">0,9530</td><td class="angka">0,0176</td></tr>
+        <tr><td>2</td><td class="angka">0,8385</td><td class="angka">0,1594</td><td>8</td><td class="angka">0,9700</td><td class="angka">0,0051</td></tr>
+        <tr><td>3</td><td class="angka">0,8856</td><td class="angka">0,0471</td><td>10</td><td class="angka">0,9769</td><td class="angka">0,0029</td></tr>
+        <tr><td>4</td><td class="angka">0,9103</td><td class="angka">0,0247</td><td>15</td><td class="angka">0,9871</td><td class="angka">0,0011</td></tr>
+        <tr><td>5</td><td class="angka">0,9354</td><td class="angka">0,0251</td><td>20</td><td class="angka">0,9910</td><td class="angka">0,0006</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Pos inti</h3>
+    <p>Pos inti adalah ukuran bantu yang dihitung dashboard, bukan bagian dari model skripsi. Untuk slider di \(p_0\), frekuensi faskes \(j\) adalah rata-rata, atas \(p = p_0, \dots, 20\), dari proporsi solusi Pareto di \(p\) yang memuat \(j\). Setiap \(p\) berbobot sama, sehingga \(p\) dengan banyak titik Pareto tidak mendominasi:</p>
+    <div class="rumus">\[ F_j(p_0) = \frac{100}{21 - p_0} \sum_{p = p_0}^{20} \frac{\big|\{S \in \mathcal F_p : j \in S\}\big|}{|\mathcal F_p|}, \qquad j \text{ pos inti} \iff F_j(p_0) \ge 75 \]</div>
+    <div class="contoh">
+      <div class="judul">Contoh · RS-36, p₀ = 10, MOBGOA</div>
+      <p>RS-36 ada di semua solusi untuk p = 10, 12, …, 20, dan di 10 dari 16 solusi untuk p = 11. Maka \(F = 100 \times (10 + 10/16)/11 = 96{,}6\%\). Ada 7 faskes dengan \(F \ge 75\%\) pada p₀ = 10.</p>
+    </div>
+  </section>
+
+  <section id="validasi">
+    <div class="label">Langkah 8</div>
+    <h2>Bagaimana kita tahu angkanya benar</h2>
+    <p>Skrip <code>cek_data.py</code> menjalankan 55 pemeriksaan setiap kali data diperbarui; semuanya lulus. Yang terpenting untuk matematika:</p>
+    <ul>
+      <li>κ dan \(\bar t\) dihitung ulang dengan fungsi model yang sama, lalu dibandingkan dengan matriks penelitian: selisih maksimum \(5\times10^{-9}\) untuk κ dan \(3{,}3\times10^{-7}\) untuk \(\bar t\).</li>
+      <li>Z1 dan Z2 setiap solusi dihitung ulang dari daftar pos dan harus sama dengan nilai solver/MOBGOA (toleransi \(10^{-6}\)).</li>
+      <li>Persentase ≤ 15 dan ≤ 40 menit harus sama dengan kolom <code>pct_*</code> di CSV solver (toleransi \(10^{-3}\), karena CSV membulatkan ke 3 desimal).</li>
+      <li>Himpunan front eksak di dashboard sama persis (dua arah) dengan CSV penelitian, termasuk pos dengan κ terbesar per kelurahan untuk titik pertama setiap \(p\).</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="label">Persiapan tanya jawab</div>
+    <h2>Pertanyaan yang mungkin muncul</h2>
+    <details><summary>Mengapa bobot integral κ memakai φ(1 − φ)?</summary><p>Karena \(\varphi(1-\varphi) = |\varphi'|/|\alpha|\), bobot ini menekankan bagian TFN yang berada di daerah transisi kurva, tempat ketidakpastian waktu paling mengubah cakupan. Kalau seluruh TFN jauh di bawah 15 menit (cakupan hampir 1), κ tetap mendekati 1 dan tidak terlalu dipengaruhi lebar TFN.</p></details>
+    <details><summary>Mengapa jangkarnya 15 menit → 0,95 dan 40 menit → 0,05?</summary><p>15 menit juga dipakai sebagai batas MCLP klasik pembanding, dan 40 menit adalah titik ketika cakupan dianggap hampir nol. Alasan pemilihan angka ini sebaiknya Anda kutip dari bab metode skripsi. Secara matematis, dua jangkar cukup untuk menentukan α dan γ secara tunggal, dan skenario sensitivitas mengganti jangkar pertama menjadi 10 menit untuk melihat pengaruhnya.</p></details>
+    <details><summary>Mengapa evaluasi di dashboard memakai waktu Google mentah, bukan TFN atau t̄?</summary><p>Ukuran netral dibuat agar sama untuk semua model yang dibandingkan di skripsi (klasik, sigmoid, fuzzy) dan mudah dipahami perencana: "berapa persen permintaan bisa dijangkau ≤ 15 menit pada jam sibuk". TFN dan \(\bar t\) hanya dipakai di dalam optimasi.</p></details>
+    <details><summary>Apakah Z2 dan pos yang melayani selalu menunjuk pos yang sama?</summary><p>Tidak selalu. \(\max\kappa\) dan \(\min\bar t\) diambil terpisah, dan kategori memakai \(\min t^c\). Pada sekitar 2% pasangan kelurahan–solusi, pos tercepat berbeda dari pos dengan κ terbesar; panel detail memberi catatan pada kasus itu.</p></details>
+    <details><summary>Apakah front MOBGOA bisa lebih baik dari front eksak?</summary><p>Secara teori tidak, karena solver eksak menghasilkan front Pareto yang benar. Ada satu catatan untuk dicek: pada p = 15, satu titik MOBGOA (Z1 = 0,98677273; Z2 = 7,4572) tidak didominasi titik eksak terdekat (Z1 = 0,98677254; Z2 = 7,4111). Selisih Z1-nya \(1{,}9\times10^{-7}\), kemungkinan besar efek toleransi numerik solver. Ini layak disebut jujur bila ditanya.</p></details>
+    <details><summary>Mengapa pos inti memberi bobot sama ke setiap p?</summary><p>Banyaknya titik Pareto berbeda-beda per \(p\) (1 sampai 16). Tanpa penyamaan bobot, \(p\) dengan banyak titik akan mendominasi frekuensi. Ambang 75% adalah pilihan desain dashboard dan bisa diubah di <code>config.py</code>.</p></details>
+  </section>
+
+  <section>
+    <div class="label">Sumber di kode</div>
+    <h2>Letak setiap rumus</h2>
+    <div class="tabel-wadah"><table>
+      <thead><tr><th>Perhitungan</th><th>Fungsi</th></tr></thead>
+      <tbody>
+        <tr><td>Bobot \(w_i\), TFN, κ, \(\bar t\)</td><td><code>model/data_bersama.py</code>: <code>siapkan</code>, <code>koreksi_tfn</code>, <code>alpha_gamma</code>, <code>phi</code>, <code>hitung_kappa</code></td></tr>
+        <tr><td>Z1, Z2</td><td><code>data_bersama.nilai</code></td></tr>
+        <tr><td>Persentase ≤ 15 / ≤ 40</td><td><code>data_bersama.ukuran_netral</code></td></tr>
+        <tr><td>MILP dan ε-constraint</td><td><code>model/model_eksak.py</code>: <code>ModelLokasi</code>, <code>front_pareto</code></td></tr>
+        <tr><td>MOBGOA, dominasi</td><td><code>model/mobgoa.py</code>: <code>jalankan</code>, <code>non_dominasi</code></td></tr>
+        <tr><td>Pos melayani, kategori, front gabungan</td><td><code>olah/solusi.py</code></td></tr>
+        <tr><td>Kenaikan cakupan, frekuensi pos inti</td><td><code>olah/metrik.py</code></td></tr>
+        <tr><td>Menit ke pos tercepat di panel</td><td><code>logika.menit_tercepat</code></td></tr>
+      </tbody>
+    </table></div>
+  </section>
+</main>
