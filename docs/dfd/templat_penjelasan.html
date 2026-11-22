@@ -1,0 +1,271 @@
+<title>Panduan DFD Dashboard Pos Gawat Darurat</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Tata letak: satu kolom baca ~72ch; diagram melebar ke 1100px di panel putih (diagram skripsi selalu hitam di atas putih). */
+:root {
+  --bg: #F5F4F1; --fg: #1C1B19; --fg-2: #5E5A52; --garis: #DDD9D0; --panel: #FFFFFF;
+  --aksen: #3B3FB6; --aksen-lembut: #E8E8F7; --ok: #1F6B4A; --ok-lembut: #E3F1EA; --awas: #8A1A45; --awas-lembut: #F9E6EE;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #17171A; --fg: #ECEAE4; --fg-2: #ABA69B; --garis: #34343A; --panel: #212126;
+  --aksen: #9EA1F2; --aksen-lembut: #2A2B46; --ok: #7CCBA4; --ok-lembut: #1D3329; --awas: #F09CBC; --awas-lembut: #3A2030;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #17171A; --fg: #ECEAE4; --fg-2: #ABA69B; --garis: #34343A; --panel: #212126;
+  --aksen: #9EA1F2; --aksen-lembut: #2A2B46; --ok: #7CCBA4; --ok-lembut: #1D3329; --awas: #F09CBC; --awas-lembut: #3A2030;
+  color-scheme: dark }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 16px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 72px; }
+.isi { max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 56px; }
+.baca { max-width: 72ch; }
+h1, h2, h3 { text-wrap: balance; line-height: 1.25; margin: 0; }
+h1 { font-size: clamp(28px, 4vw, 40px); font-weight: 600; letter-spacing: -.02em; }
+h2 { font-size: 24px; font-weight: 600; letter-spacing: -.01em; }
+h3 { font-size: 17px; font-weight: 600; }
+p { margin: 0; }
+section { display: flex; flex-direction: column; gap: 16px; }
+.label { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--aksen); }
+.lead { font-size: 18px; color: var(--fg-2); }
+code, .mono { font-family: var(--mono); font-size: .9em; }
+code { background: var(--aksen-lembut); padding: 1px 6px; border-radius: 5px; }
+a { color: var(--aksen); }
+ul, ol { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 6px; }
+
+/* simbol */
+.simbol { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+.sim { background: var(--panel); border: 1px solid var(--garis); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.sim svg { width: 100%; height: 64px; }
+.sim .gambar { background: #FFFFFF; border-radius: 8px; padding: 6px; }
+.sim h3 { font-size: 15px; }
+.sim p { font-size: 14px; color: var(--fg-2); }
+
+/* diagram */
+figure { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.kanvas { background: #FFFFFF; border: 1px solid var(--garis); border-radius: 12px; padding: 12px; overflow-x: auto; }
+.kanvas svg { display: block; width: 100%; min-width: 760px; height: auto; }
+figcaption { font-size: 14px; color: var(--fg-2); }
+.tab { display: flex; gap: 4px; background: var(--aksen-lembut); padding: 4px; border-radius: 10px; width: fit-content; }
+.tab button { font: 500 14px var(--sans); border: none; background: transparent; color: var(--fg); padding: 6px 14px; border-radius: 7px; cursor: pointer; }
+.tab button[aria-pressed="true"] { background: var(--panel); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+.tab button:focus-visible, .ceklis input:focus-visible { outline: 2px solid var(--aksen); outline-offset: 2px; }
+
+/* tabel */
+.tabel-wadah { overflow-x: auto; border: 1px solid var(--garis); border-radius: 12px; background: var(--panel); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--garis); vertical-align: top; }
+th { font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--fg-2); }
+tr:last-child td { border-bottom: none; }
+
+/* aturan */
+.aturan { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+.atur { background: var(--panel); border: 1px solid var(--garis); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.atur p { font-size: 14px; color: var(--fg-2); }
+.tanda { font: 500 12px var(--mono); padding: 2px 8px; border-radius: 999px; width: fit-content; }
+.tanda.boleh { background: var(--ok-lembut); color: var(--ok); }
+.tanda.jangan { background: var(--awas-lembut); color: var(--awas); }
+
+/* ceklis */
+.ceklis { list-style: none; padding: 0; gap: 10px; }
+.ceklis li { background: var(--panel); border: 1px solid var(--garis); border-radius: 12px; padding: 14px 16px; display: grid; grid-template-columns: 22px 1fr; gap: 12px; align-items: start; }
+.ceklis input { width: 18px; height: 18px; margin: 3px 0 0; accent-color: var(--aksen); }
+.ceklis strong { display: block; }
+.ceklis span { color: var(--fg-2); font-size: 14px; }
+.ceklis li:has(input:checked) strong { text-decoration: line-through; color: var(--fg-2); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<main class="isi">
+  <header class="baca" style="display:flex;flex-direction:column;gap:14px">
+    <div class="label">Bab perancangan sistem · DFD</div>
+    <h1>DFD Dashboard Lokasi Pos Gawat Darurat Kota Bekasi</h1>
+    <p class="lead">Data Flow Diagram (DFD) menggambarkan dari mana data datang, diproses oleh apa, disimpan di mana, dan keluar ke siapa. Halaman ini menjelaskan DFD dari nol, lalu menunjukkan tiga diagram yang sudah disusun dari prototipe dashboard Anda, berikut daftar pekerjaan sebelum DFD siap masuk skripsi.</p>
+  </header>
+
+  <section class="baca">
+    <div class="label">1 · Apa itu DFD</div>
+    <h2>Peta perjalanan data, bukan urutan langkah</h2>
+    <p>DFD hanya menjawab pertanyaan <em>data apa mengalir ke mana</em>. DFD tidak menunjukkan urutan waktu, percabangan if/else, atau perulangan; itu tugas flowchart atau activity diagram. Karena itu tidak ada simbol "mulai", "selesai", atau belah ketupat keputusan di DFD.</p>
+    <p>DFD digambar bertingkat. Tingkat paling atas melihat sistem sebagai satu kotak hitam; setiap tingkat di bawahnya "membuka" satu proses menjadi beberapa proses yang lebih rinci, sampai setiap proses cukup sederhana untuk dijelaskan dengan beberapa kalimat atau pseudocode.</p>
+  </section>
+
+  <section>
+    <div class="baca" style="display:flex;flex-direction:column;gap:12px">
+      <div class="label">2 · Empat simbol</div>
+      <h2>Hanya ada empat jenis bentuk</h2>
+      <p>Ada dua gaya gambar yang umum dipakai: Yourdon/DeMarco (proses berupa lingkaran) dan Gane–Sarson (proses berupa persegi bersudut tumpul). Isinya sama; pakai salah satu secara konsisten, sesuai yang diminta pembimbing atau panduan jurusan. Diagram di halaman ini tersedia dalam kedua gaya.</p>
+    </div>
+    <div class="simbol">
+      <div class="sim">
+        <div class="gambar"><svg viewBox="0 0 220 64"><rect x="60" y="8" width="100" height="48" fill="#fff" stroke="#111" stroke-width="2"/><text x="110" y="37" text-anchor="middle" font-family="Arial" font-size="13" font-weight="bold" fill="#111">Admin</text></svg></div>
+        <h3>Entitas eksternal</h3>
+        <p>Orang atau sistem di luar dashboard yang memberi atau menerima data. Di sini: Admin, Perencana, dan Layanan Rute (OSRM).</p>
+      </div>
+      <div class="sim">
+        <div class="gambar"><svg viewBox="0 0 220 64"><circle cx="70" cy="32" r="28" fill="#fff" stroke="#111" stroke-width="2"/><text x="70" y="36" text-anchor="middle" font-family="Arial" font-size="12" font-weight="bold" fill="#111">3.0</text><rect x="122" y="6" width="80" height="52" rx="9" fill="#fff" stroke="#111" stroke-width="2"/><line x1="122" y1="22" x2="202" y2="22" stroke="#111" stroke-width="2"/><text x="162" y="18" text-anchor="middle" font-family="Arial" font-size="11" font-weight="bold" fill="#111">3.0</text></svg></div>
+        <h3>Proses</h3>
+        <p>Sesuatu yang mengubah data masuk menjadi data keluar. Diberi nomor dan nama berupa kata kerja + objek, misalnya "Tampilkan Solusi". Kiri: Yourdon, kanan: Gane–Sarson.</p>
+      </div>
+      <div class="sim">
+        <div class="gambar"><svg viewBox="0 0 220 64"><path d="M190,14 H30 V50 H190" fill="none" stroke="#111" stroke-width="2"/><line x1="72" y1="14" x2="72" y2="50" stroke="#111" stroke-width="1.5"/><text x="51" y="36" text-anchor="middle" font-family="Arial" font-size="13" font-weight="bold" fill="#111">D2</text><text x="82" y="36" font-family="Arial" font-size="13" fill="#111">Faskes</text></svg></div>
+        <h3>Penyimpan data</h3>
+        <p>Tempat data diam: tabel database atau file. Diberi kode D1, D2, … dan nama berupa kata benda. Penyimpan data inilah yang nanti menjadi tabel di ERD.</p>
+      </div>
+      <div class="sim">
+        <div class="gambar"><svg viewBox="0 0 220 64"><defs><marker id="p" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#111"/></marker></defs><line x1="24" y1="40" x2="196" y2="40" stroke="#111" stroke-width="1.6" marker-end="url(#p)"/><text x="110" y="30" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">solusi Pareto</text></svg></div>
+        <h3>Aliran data</h3>
+        <p>Panah berlabel yang menunjukkan data berpindah. Labelnya kata benda (datanya), bukan kata kerja: "solusi Pareto", bukan "kirim solusi".</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="baca" style="display:flex;flex-direction:column;gap:12px">
+      <div class="label">3 · Diagram konteks (level 0)</div>
+      <h2>Sistem dilihat dari luar</h2>
+      <p>Seluruh dashboard digambar sebagai satu proses bernomor 0. Yang terlihat hanya siapa saja yang berinteraksi dengannya dan data apa yang keluar-masuk. Penyimpan data belum digambar di level ini.</p>
+    </div>
+    <div class="tab" role="group" aria-label="Pilih notasi">
+      <button type="button" id="btn-yourdon" aria-pressed="true">Yourdon/DeMarco</button>
+      <button type="button" id="btn-gane" aria-pressed="false">Gane–Sarson</button>
+    </div>
+    <figure>
+      <div class="kanvas" data-notasi="yourdon">{{SVG_KONTEKS}}</div>
+      <div class="kanvas" data-notasi="gane" hidden>{{SVG_KONTEKS_GS}}</div>
+      <figcaption>Gambar 1. Diagram konteks. Tiga entitas eksternal: Admin mengunggah hasil optimasi, Perencana memakai dashboard, dan Layanan Rute (OSRM) memberi geometri rute jalan.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <div class="baca" style="display:flex;flex-direction:column;gap:12px">
+      <div class="label">4 · DFD level 1</div>
+      <h2>Proses 0 dibuka menjadi lima proses</h2>
+      <p>Proses 1.0 dan 2.0 adalah bagian Admin (direncanakan untuk prototipe berikutnya). Proses 3.0–5.0 adalah yang sudah ada di prototipe sekarang. Penyimpan data D1–D6 mulai muncul di level ini. Perhatikan bahwa semua aliran yang menyentuh entitas eksternal sama persis dengan diagram konteks; inilah yang disebut <em>balancing</em>.</p>
+    </div>
+    <figure>
+      <div class="kanvas" data-notasi="yourdon">{{SVG_LEVEL1}}</div>
+      <div class="kanvas" data-notasi="gane" hidden>{{SVG_LEVEL1_GS}}</div>
+      <figcaption>Gambar 2. DFD level 1. Proses 3.0 meneruskan "solusi aktif" ke 4.0 dan 5.0, sama seperti di kode: satu state solusi aktif dipakai panel analisis dan panel detail.</figcaption>
+    </figure>
+    <div class="tabel-wadah">
+      <table>
+        <thead><tr><th>Proses</th><th>Yang dikerjakan</th><th>Di prototipe sekarang</th></tr></thead>
+        <tbody>
+          <tr><td><strong>1.0</strong> Kelola Login Admin</td><td>Memeriksa data login terhadap akun di D1, lalu memberi hak akses ke 2.0.</td><td>Belum ada (prototipe berikutnya).</td></tr>
+          <tr><td><strong>2.0</strong> Kelola Data Hasil Optimasi</td><td>Menerima berkas hasil eksak/MOBGOA dan data pendukung, memvalidasinya, mengolahnya, lalu mengisi D2–D6.</td><td>Masih berupa skrip yang dijalankan manual: <code>scripts/cek_data.py</code>, <code>scripts/siapkan_data.py</code>, <code>scripts/ambil_rute.py</code>.</td></tr>
+          <tr><td><strong>3.0</strong> Tampilkan Solusi</td><td>Memilih solusi aktif dari pilihan skenario, p, kondisi, dan titik Pareto; menggambar peta dan ringkasan metrik.</td><td><code>callbacks.py</code> blok 3.0, <code>logika.py</code> bagian 3.0.</td></tr>
+          <tr><td><strong>4.0</strong> Tampilkan Analisis</td><td>Grafik kenaikan cakupan, pos inti, dan 10 kelurahan cakupan terendah.</td><td><code>callbacks.py</code> blok 4.0, <code>logika.py</code> bagian 4.0.</td></tr>
+          <tr><td><strong>5.0</strong> Tampilkan Detail Kelurahan</td><td>Data kelurahan yang diklik, menit tempuh ke pos tercepat, dan rute jalan.</td><td><code>callbacks.py</code> blok 5.0, <code>logika.py</code> bagian 5.0.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="baca" style="display:flex;flex-direction:column;gap:12px">
+      <div class="label">5 · DFD level 2 proses 2.0</div>
+      <h2>Membuka proses yang paling rumit</h2>
+      <p>Tidak semua proses perlu level 2. Yang dibuka hanya proses yang masih terlalu besar untuk dijelaskan dalam beberapa kalimat. Proses 2.0 dibuka karena di dalamnya ada empat pekerjaan berbeda. Nomor anak proses mewarisi nomor induknya: 2.1, 2.2, 2.3, 2.4. Proses 1.0 digambar putus-putus karena ia bukan bagian 2.0, hanya sumber aliran "hak akses admin".</p>
+    </div>
+    <figure>
+      <div class="kanvas" data-notasi="yourdon">{{SVG_LEVEL2}}</div>
+      <div class="kanvas" data-notasi="gane" hidden>{{SVG_LEVEL2_GS}}</div>
+      <figcaption>Gambar 3. DFD level 2 proses 2.0. Aliran masuk dan keluar dari kotak ini harus sama dengan aliran yang menyentuh proses 2.0 di level 1.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <div class="baca" style="display:flex;flex-direction:column;gap:12px">
+      <div class="label">6 · Aturan yang biasa diperiksa penguji</div>
+      <h2>Kesalahan yang paling sering</h2>
+    </div>
+    <div class="aturan">
+      <div class="atur"><span class="tanda jangan">dilarang</span><h3>Entitas langsung ke penyimpan data</h3><p>Admin tidak boleh menulis langsung ke D2. Data harus lewat proses (2.0) dulu.</p></div>
+      <div class="atur"><span class="tanda jangan">dilarang</span><h3>Penyimpan data ke penyimpan data</h3><p>Data tidak bisa pindah sendiri antar tabel; selalu harus ada proses di antaranya.</p></div>
+      <div class="atur"><span class="tanda jangan">dilarang</span><h3>Entitas ke entitas</h3><p>Aliran antara Admin dan Perencana di luar sistem tidak digambar, karena bukan urusan sistem.</p></div>
+      <div class="atur"><span class="tanda jangan">dilarang</span><h3>Black hole, miracle, gray hole</h3><p>Proses yang hanya punya masukan (black hole), hanya punya keluaran (miracle), atau keluarannya tidak mungkin dihasilkan dari masukannya (gray hole).</p></div>
+      <div class="atur"><span class="tanda boleh">wajib</span><h3>Balancing antar-level</h3><p>Aliran yang masuk/keluar sebuah proses di level atas harus muncul lagi, dengan nama yang sama, di diagram anaknya.</p></div>
+      <div class="atur"><span class="tanda boleh">wajib</span><h3>Penamaan konsisten</h3><p>Proses: kata kerja + objek. Aliran dan penyimpan data: kata benda. Nama yang sama berarti data yang sama di semua diagram.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="baca" style="display:flex;flex-direction:column;gap:12px">
+      <div class="label">7 · Penyimpan data ke ERD</div>
+      <h2>D1–D6 adalah calon tabel</h2>
+      <p>Setelah DFD disetujui, setiap penyimpan data menjadi satu entitas (tabel) di ERD. Isinya sudah bisa ditebak dari file olahan prototipe.</p>
+    </div>
+    <div class="tabel-wadah">
+      <table>
+        <thead><tr><th>Kode</th><th>Penyimpan data</th><th>Isi utama</th><th>Asal di prototipe</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">D1</td><td>Admin</td><td>username, password (di-hash), nama</td><td>belum ada</td></tr>
+          <tr><td class="mono">D2</td><td>Faskes</td><td>kode, nama, jenis (RS/PKM), kecamatan, lat, lng</td><td><code>faskes.json</code></td></tr>
+          <tr><td class="mono">D3</td><td>Kelurahan</td><td>kode KDEPUM, nama, kecamatan, penduduk, lansia, centroid, poligon batas</td><td><code>kelurahan.geojson</code></td></tr>
+          <tr><td class="mono">D4</td><td>Solusi Optimasi</td><td>skenario, metode, p, solusi_id, Z1, Z2, daftar pos, hasil per kelurahan</td><td><code>hasil_&lt;skenario&gt;_&lt;metode&gt;.json</code></td></tr>
+          <tr><td class="mono">D5</td><td>Metrik Analisis</td><td>kenaikan cakupan per p, frekuensi faskes per p awal</td><td><code>metrik_&lt;skenario&gt;_&lt;metode&gt;.json</code></td></tr>
+          <tr><td class="mono">D6</td><td>Waktu Tempuh dan Rute</td><td>menit per pasangan faskes–kelurahan (3 kondisi), geometri rute</td><td><code>menit_google.json</code>, <code>rute_osrm.json</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="baca">
+    <div class="label">8 · Yang perlu Anda kerjakan</div>
+    <h2>Daftar sebelum DFD masuk skripsi</h2>
+    <p>Centang yang sudah selesai; tanda centang hanya tersimpan di browser Anda.</p>
+    <ol class="ceklis" id="ceklis">
+      <li><input type="checkbox" id="c1"><label for="c1"><strong>Tanyakan notasi ke pembimbing atau panduan jurusan</strong><span>Yourdon/DeMarco atau Gane–Sarson. Kedua versi sudah tersedia; pakai satu saja di seluruh skripsi.</span></label></li>
+      <li><input type="checkbox" id="c2"><label for="c2"><strong>Periksa nama entitas, proses, dan aliran</strong><span>Misalnya apakah "Perencana (Dinkes / PSC 119)" sudah tepat, dan apakah Admin memang orang yang mengunggah hasil optimasi.</span></label></li>
+      <li><input type="checkbox" id="c3"><label for="c3"><strong>Putuskan cakupan fitur Admin</strong><span>DFD sudah memuat 1.0 dan 2.0 untuk prototipe berikutnya. Kalau ada fitur Admin lain (kelola akun, hapus data), tambahkan prosesnya sekarang agar DFD dan ERD sejalan.</span></label></li>
+      <li><input type="checkbox" id="c4"><label for="c4"><strong>Tulis kamus data</strong><span>Tabel yang menjelaskan isi setiap aliran dan penyimpan data, misalnya "solusi Pareto = p + solusi_id + Z1 + Z2 + daftar pos".</span></label></li>
+      <li><input type="checkbox" id="c5"><label for="c5"><strong>Tulis spesifikasi proses</strong><span>Untuk setiap proses paling bawah (2.1–2.4, 1.0, 3.0, 4.0, 5.0): masukan, keluaran, dan langkahnya dalam narasi singkat atau pseudocode.</span></label></li>
+      <li><input type="checkbox" id="c6"><label for="c6"><strong>Cek balancing sekali lagi</strong><span>Bandingkan aliran di Gambar 1 dengan Gambar 2, dan aliran proses 2.0 di Gambar 2 dengan Gambar 3. Namanya harus sama persis.</span></label></li>
+      <li><input type="checkbox" id="c7"><label for="c7"><strong>Pertimbangkan level 2 untuk proses 3.0</strong><span>Opsional. Kalau pembimbing meminta lebih rinci, 3.0 bisa dibuka menjadi pilih solusi aktif, bentuk peta, dan hitung ringkasan metrik.</span></label></li>
+      <li><input type="checkbox" id="c8"><label for="c8"><strong>Masukkan ke bab perancangan</strong><span>Tempel SVG (atau ekspor PNG dari draw.io), beri nomor gambar dan keterangan, lalu jelaskan setiap proses dengan satu paragraf.</span></label></li>
+      <li><input type="checkbox" id="c9"><label for="c9"><strong>Lanjut ke ERD</strong><span>Turunkan D1–D6 menjadi tabel dengan atribut, kunci primer, dan relasi.</span></label></li>
+    </ol>
+  </section>
+
+  <section class="baca">
+    <div class="label">9 · File di proyek</div>
+    <h2>Mengedit dan memakai diagramnya</h2>
+    <ul>
+      <li>Semua file ada di <code>docs/dfd/</code>. File <code>.svg</code> bisa langsung disisipkan ke Word (Insert → Pictures) atau LaTeX.</li>
+      <li>File <code>.drawio</code> dibuka di <a href="https://app.diagrams.net" target="_blank" rel="noopener">app.diagrams.net</a> (gratis). Di sana Anda bisa memindahkan bentuk, mengganti nama, lalu File → Export as → PNG/PDF.</li>
+      <li>Nama file berakhiran <code>-gane-sarson</code> adalah versi notasi Gane–Sarson.</li>
+      <li>Kalau isi DFD berubah besar, ubah daftar bentuk dan aliran di <code>docs/dfd/buat_dfd.py</code> lalu jalankan ulang; semua file terbentuk lagi dengan nama aliran yang konsisten.</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+(function () {
+  var tombol = { yourdon: document.getElementById("btn-yourdon"), gane: document.getElementById("btn-gane") };
+  function pilih(n) {
+    document.querySelectorAll(".kanvas").forEach(function (k) { k.hidden = k.dataset.notasi !== n; });
+    tombol.yourdon.setAttribute("aria-pressed", String(n === "yourdon"));
+    tombol.gane.setAttribute("aria-pressed", String(n === "gane"));
+    try { localStorage.setItem("dfd-notasi", n); } catch (e) {}
+  }
+  tombol.yourdon.addEventListener("click", function () { pilih("yourdon"); });
+  tombol.gane.addEventListener("click", function () { pilih("gane"); });
+  try { var simpan = localStorage.getItem("dfd-notasi"); if (simpan === "gane") pilih("gane"); } catch (e) {}
+
+  var kotak = document.querySelectorAll("#ceklis input");
+  var status = {};
+  try { status = JSON.parse(localStorage.getItem("dfd-ceklis") || "{}"); } catch (e) {}
+  kotak.forEach(function (k) {
+    k.checked = !!status[k.id];
+    k.addEventListener("change", function () {
+      status[k.id] = k.checked;
+      try { localStorage.setItem("dfd-ceklis", JSON.stringify(status)); } catch (e) {}
+    });
+  });
+})();
+</script>

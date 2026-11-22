@@ -1,0 +1,571 @@
+<title>Panduan DFD Dashboard Pos Gawat Darurat</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Tata letak: satu kolom baca ~72ch; diagram melebar ke 1100px di panel putih (diagram skripsi selalu hitam di atas putih). */
+:root {
+  --bg: #F5F4F1; --fg: #1C1B19; --fg-2: #5E5A52; --garis: #DDD9D0; --panel: #FFFFFF;
+  --aksen: #3B3FB6; --aksen-lembut: #E8E8F7; --ok: #1F6B4A; --ok-lembut: #E3F1EA; --awas: #8A1A45; --awas-lembut: #F9E6EE;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #17171A; --fg: #ECEAE4; --fg-2: #ABA69B; --garis: #34343A; --panel: #212126;
+  --aksen: #9EA1F2; --aksen-lembut: #2A2B46; --ok: #7CCBA4; --ok-lembut: #1D3329; --awas: #F09CBC; --awas-lembut: #3A2030;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #17171A; --fg: #ECEAE4; --fg-2: #ABA69B; --garis: #34343A; --panel: #212126;
+  --aksen: #9EA1F2; --aksen-lembut: #2A2B46; --ok: #7CCBA4; --ok-lembut: #1D3329; --awas: #F09CBC; --awas-lembut: #3A2030;
+  color-scheme: dark }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 16px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 72px; }
+.isi { max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 56px; }
+.baca { max-width: 72ch; }
+h1, h2, h3 { text-wrap: balance; line-height: 1.25; margin: 0; }
+h1 { font-size: clamp(28px, 4vw, 40px); font-weight: 600; letter-spacing: -.02em; }
+h2 { font-size: 24px; font-weight: 600; letter-spacing: -.01em; }
+h3 { font-size: 17px; font-weight: 600; }
+p { margin: 0; }
+section { display: flex; flex-direction: column; gap: 16px; }
+.label { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--aksen); }
+.lead { font-size: 18px; color: var(--fg-2); }
+code, .mono { font-family: var(--mono); font-size: .9em; }
+code { background: var(--aksen-lembut); padding: 1px 6px; border-radius: 5px; }
+a { color: var(--aksen); }
+ul, ol { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 6px; }
+
+/* simbol */
+.simbol { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+.sim { background: var(--panel); border: 1px solid var(--garis); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.sim svg { width: 100%; height: 64px; }
+.sim .gambar { background: #FFFFFF; border-radius: 8px; padding: 6px; }
+.sim h3 { font-size: 15px; }
+.sim p { font-size: 14px; color: var(--fg-2); }
+
+/* diagram */
+figure { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.kanvas { background: #FFFFFF; border: 1px solid var(--garis); border-radius: 12px; padding: 12px; overflow-x: auto; }
+.kanvas svg { display: block; width: 100%; min-width: 760px; height: auto; }
+figcaption { font-size: 14px; color: var(--fg-2); }
+.tab { display: flex; gap: 4px; background: var(--aksen-lembut); padding: 4px; border-radius: 10px; width: fit-content; }
+.tab button { font: 500 14px var(--sans); border: none; background: transparent; color: var(--fg); padding: 6px 14px; border-radius: 7px; cursor: pointer; }
+.tab button[aria-pressed="true"] { background: var(--panel); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+.tab button:focus-visible, .ceklis input:focus-visible { outline: 2px solid var(--aksen); outline-offset: 2px; }
+
+/* tabel */
+.tabel-wadah { overflow-x: auto; border: 1px solid var(--garis); border-radius: 12px; background: var(--panel); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--garis); vertical-align: top; }
+th { font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--fg-2); }
+tr:last-child td { border-bottom: none; }
+
+/* aturan */
+.aturan { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+.atur { background: var(--panel); border: 1px solid var(--garis); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.atur p { font-size: 14px; color: var(--fg-2); }
+.tanda { font: 500 12px var(--mono); padding: 2px 8px; border-radius: 999px; width: fit-content; }
+.tanda.boleh { background: var(--ok-lembut); color: var(--ok); }
+.tanda.jangan { background: var(--awas-lembut); color: var(--awas); }
+
+/* ceklis */
+.ceklis { list-style: none; padding: 0; gap: 10px; }
+.ceklis li { background: var(--panel); border: 1px solid var(--garis); border-radius: 12px; padding: 14px 16px; display: grid; grid-template-columns: 22px 1fr; gap: 12px; align-items: start; }
+.ceklis input { width: 18px; height: 18px; margin: 3px 0 0; accent-color: var(--aksen); }
+.ceklis strong { display: block; }
+.ceklis span { color: var(--fg-2); font-size: 14px; }
+.ceklis li:has(input:checked) strong { text-decoration: line-through; color: var(--fg-2); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<main class="isi">
+  <header class="baca" style="display:flex;flex-direction:column;gap:14px">
+    <div class="label">Bab perancangan sistem · DFD</div>
+    <h1>DFD Dashboard Lokasi Pos Gawat Darurat Kota Bekasi</h1>
+    <p class="lead">Data Flow Diagram (DFD) menggambarkan dari mana data datang, diproses oleh apa, disimpan di mana, dan keluar ke siapa. Halaman ini menjelaskan DFD dari nol, lalu menunjukkan tiga diagram yang sudah disusun dari prototipe dashboard Anda, berikut daftar pekerjaan sebelum DFD siap masuk skripsi.</p>
+  </header>
+
+  <section class="baca">
+    <div class="label">1 · Apa itu DFD</div>
+    <h2>Peta perjalanan data, bukan urutan langkah</h2>
+    <p>DFD hanya menjawab pertanyaan <em>data apa mengalir ke mana</em>. DFD tidak menunjukkan urutan waktu, percabangan if/else, atau perulangan; itu tugas flowchart atau activity diagram. Karena itu tidak ada simbol "mulai", "selesai", atau belah ketupat keputusan di DFD.</p>
+    <p>DFD digambar bertingkat. Tingkat paling atas melihat sistem sebagai satu kotak hitam; setiap tingkat di bawahnya "membuka" satu proses menjadi beberapa proses yang lebih rinci, sampai setiap proses cukup sederhana untuk dijelaskan dengan beberapa kalimat atau pseudocode.</p>
+  </section>
+
+  <section>
+    <div class="baca" style="display:flex;flex-direction:column;gap:12px">
+      <div class="label">2 · Empat simbol</div>
+      <h2>Hanya ada empat jenis bentuk</h2>
+      <p>Ada dua gaya gambar yang umum dipakai: Yourdon/DeMarco (proses berupa lingkaran) dan Gane–Sarson (proses berupa persegi bersudut tumpul). Isinya sama; pakai salah satu secara konsisten, sesuai yang diminta pembimbing atau panduan jurusan. Diagram di halaman ini tersedia dalam kedua gaya.</p>
+    </div>
+    <div class="simbol">
+      <div class="sim">
+        <div class="gambar"><svg viewBox="0 0 220 64"><rect x="60" y="8" width="100" height="48" fill="#fff" stroke="#111" stroke-width="2"/><text x="110" y="37" text-anchor="middle" font-family="Arial" font-size="13" font-weight="bold" fill="#111">Admin</text></svg></div>
+        <h3>Entitas eksternal</h3>
+        <p>Orang atau sistem di luar dashboard yang memberi atau menerima data. Di sini: Admin, Perencana, dan Layanan Rute (OSRM).</p>
+      </div>
+      <div class="sim">
+        <div class="gambar"><svg viewBox="0 0 220 64"><circle cx="70" cy="32" r="28" fill="#fff" stroke="#111" stroke-width="2"/><text x="70" y="36" text-anchor="middle" font-family="Arial" font-size="12" font-weight="bold" fill="#111">3.0</text><rect x="122" y="6" width="80" height="52" rx="9" fill="#fff" stroke="#111" stroke-width="2"/><line x1="122" y1="22" x2="202" y2="22" stroke="#111" stroke-width="2"/><text x="162" y="18" text-anchor="middle" font-family="Arial" font-size="11" font-weight="bold" fill="#111">3.0</text></svg></div>
+        <h3>Proses</h3>
+        <p>Sesuatu yang mengubah data masuk menjadi data keluar. Diberi nomor dan nama berupa kata kerja + objek, misalnya "Tampilkan Solusi". Kiri: Yourdon, kanan: Gane–Sarson.</p>
+      </div>
+      <div class="sim">
+        <div class="gambar"><svg viewBox="0 0 220 64"><path d="M190,14 H30 V50 H190" fill="none" stroke="#111" stroke-width="2"/><line x1="72" y1="14" x2="72" y2="50" stroke="#111" stroke-width="1.5"/><text x="51" y="36" text-anchor="middle" font-family="Arial" font-size="13" font-weight="bold" fill="#111">D2</text><text x="82" y="36" font-family="Arial" font-size="13" fill="#111">Faskes</text></svg></div>
+        <h3>Penyimpan data</h3>
+        <p>Tempat data diam: tabel database atau file. Diberi kode D1, D2, … dan nama berupa kata benda. Penyimpan data inilah yang nanti menjadi tabel di ERD.</p>
+      </div>
+      <div class="sim">
+        <div class="gambar"><svg viewBox="0 0 220 64"><defs><marker id="p" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#111"/></marker></defs><line x1="24" y1="40" x2="196" y2="40" stroke="#111" stroke-width="1.6" marker-end="url(#p)"/><text x="110" y="30" text-anchor="middle" font-family="Arial" font-size="12" fill="#111">solusi Pareto</text></svg></div>
+        <h3>Aliran data</h3>
+        <p>Panah berlabel yang menunjukkan data berpindah. Labelnya kata benda (datanya), bukan kata kerja: "solusi Pareto", bukan "kirim solusi".</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="baca" style="display:flex;flex-direction:column;gap:12px">
+      <div class="label">3 · Diagram konteks (level 0)</div>
+      <h2>Sistem dilihat dari luar</h2>
+      <p>Seluruh dashboard digambar sebagai satu proses bernomor 0. Yang terlihat hanya siapa saja yang berinteraksi dengannya dan data apa yang keluar-masuk. Penyimpan data belum digambar di level ini.</p>
+    </div>
+    <div class="tab" role="group" aria-label="Pilih notasi">
+      <button type="button" id="btn-yourdon" aria-pressed="true">Yourdon/DeMarco</button>
+      <button type="button" id="btn-gane" aria-pressed="false">Gane–Sarson</button>
+    </div>
+    <figure>
+      <div class="kanvas" data-notasi="yourdon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 650">
+<title>Diagram Konteks</title>
+<defs><marker id="panah1" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#111111"/></marker></defs>
+<rect width="1440" height="650" fill="#FFFFFF"/>
+<path d="M220.0,358.0 L559.2,358.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah1)"/>
+<path d="M551.0,326.0 L220.0,326.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah1)"/>
+<path d="M220.0,294.0 L551.0,294.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah1)"/>
+<path d="M559.2,262.0 L220.0,262.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah1)"/>
+<path d="M1190.0,230.0 L782.5,230.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah1)"/>
+<path d="M1190.0,262.0 L800.8,262.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah1)"/>
+<path d="M1190.0,294.0 L809.0,294.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah1)"/>
+<path d="M809.0,326.0 L1190.0,326.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah1)"/>
+<path d="M800.8,358.0 L1190.0,358.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah1)"/>
+<path d="M782.5,390.0 L1190.0,390.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah1)"/>
+<path d="M644.0,434.9 L644.0,560.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah1)"/>
+<path d="M716.0,560.0 L716.0,434.9" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah1)"/>
+<rect x="50" y="240" width="170" height="140" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="135.0" y="310.0" dominant-baseline="middle">Admin</tspan></text>
+<circle cx="680" cy="310" r="130" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="680.0" y="255.4" dominant-baseline="middle">0</tspan></text><line x1="586.4" y1="278.8" x2="773.6" y2="278.8" stroke="#111111" stroke-width="1"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle"><tspan x="680.0" y="314.8" dominant-baseline="middle">Sistem Dashboard</tspan><tspan x="680.0" y="330.7" dominant-baseline="middle">Lokasi Pos</tspan><tspan x="680.0" y="346.5" dominant-baseline="middle">Gawat Darurat</tspan><tspan x="680.0" y="362.4" dominant-baseline="middle">Kota Bekasi</tspan></text>
+<rect x="1190" y="190" width="200" height="240" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="1290.0" y="301.5" dominant-baseline="middle">Perencana</tspan><tspan x="1290.0" y="318.5" dominant-baseline="middle">(Dinkes / PSC 119)</tspan></text>
+<rect x="585" y="560" width="190" height="64" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="680.0" y="583.5" dominant-baseline="middle">Layanan Rute</tspan><tspan x="680.0" y="600.5" dominant-baseline="middle">(OSRM)</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="389.6" y="349.0" dominant-baseline="middle">data login admin</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="385.5" y="317.0" dominant-baseline="middle">status login</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="385.5" y="285.0" dominant-baseline="middle">berkas hasil optimasi dan data pendukung</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="389.6" y="253.0" dominant-baseline="middle">laporan validasi data</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="986.2" y="221.0" dominant-baseline="middle">pilihan skenario, jumlah pos, kondisi lalu lintas, solusi</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="995.4" y="253.0" dominant-baseline="middle">sakelar pos inti</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="999.5" y="285.0" dominant-baseline="middle">kelurahan dipilih</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="999.5" y="317.0" dominant-baseline="middle">peta solusi dan ringkasan metrik</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="995.4" y="349.0" dominant-baseline="middle">grafik analisis dan pos inti</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="986.2" y="381.0" dominant-baseline="middle">detail kelurahan dan rute jalan</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="582.0" y="497.5" dominant-baseline="middle">permintaan rute</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="788.0" y="497.5" dominant-baseline="middle">geometri rute jalan</tspan></text>
+</svg></div>
+      <div class="kanvas" data-notasi="gane" hidden><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 650">
+<title>Diagram Konteks</title>
+<defs><marker id="panah2" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#111111"/></marker></defs>
+<rect width="1440" height="650" fill="#FFFFFF"/>
+<path d="M220.0,358.0 L550.0,358.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah2)"/>
+<path d="M550.0,326.0 L220.0,326.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah2)"/>
+<path d="M220.0,294.0 L550.0,294.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah2)"/>
+<path d="M550.0,262.0 L220.0,262.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah2)"/>
+<path d="M1190.0,230.0 L810.0,230.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah2)"/>
+<path d="M1190.0,262.0 L810.0,262.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah2)"/>
+<path d="M1190.0,294.0 L810.0,294.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah2)"/>
+<path d="M810.0,326.0 L1190.0,326.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah2)"/>
+<path d="M810.0,358.0 L1190.0,358.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah2)"/>
+<path d="M810.0,390.0 L1190.0,390.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah2)"/>
+<path d="M644.0,404.3 L644.0,560.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah2)"/>
+<path d="M716.0,560.0 L716.0,404.3" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah2)"/>
+<rect x="50" y="240" width="170" height="140" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="135.0" y="310.0" dominant-baseline="middle">Admin</tspan></text>
+<rect x="550.0" y="215.8" width="260.0" height="188.5" rx="14" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><line x1="550.0" y1="241.8" x2="810.0" y2="241.8" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="680.0" y="228.8" dominant-baseline="middle">0</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle"><tspan x="680.0" y="299.2" dominant-baseline="middle">Sistem Dashboard</tspan><tspan x="680.0" y="315.1" dominant-baseline="middle">Lokasi Pos</tspan><tspan x="680.0" y="330.9" dominant-baseline="middle">Gawat Darurat</tspan><tspan x="680.0" y="346.8" dominant-baseline="middle">Kota Bekasi</tspan></text>
+<rect x="1190" y="190" width="200" height="240" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="1290.0" y="301.5" dominant-baseline="middle">Perencana</tspan><tspan x="1290.0" y="318.5" dominant-baseline="middle">(Dinkes / PSC 119)</tspan></text>
+<rect x="585" y="560" width="190" height="64" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="680.0" y="583.5" dominant-baseline="middle">Layanan Rute</tspan><tspan x="680.0" y="600.5" dominant-baseline="middle">(OSRM)</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="385.0" y="349.0" dominant-baseline="middle">data login admin</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="385.0" y="317.0" dominant-baseline="middle">status login</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="385.0" y="285.0" dominant-baseline="middle">berkas hasil optimasi dan data pendukung</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="385.0" y="253.0" dominant-baseline="middle">laporan validasi data</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="1000.0" y="221.0" dominant-baseline="middle">pilihan skenario, jumlah pos, kondisi lalu lintas, solusi</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="1000.0" y="253.0" dominant-baseline="middle">sakelar pos inti</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="1000.0" y="285.0" dominant-baseline="middle">kelurahan dipilih</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="1000.0" y="317.0" dominant-baseline="middle">peta solusi dan ringkasan metrik</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="1000.0" y="349.0" dominant-baseline="middle">grafik analisis dan pos inti</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="1000.0" y="381.0" dominant-baseline="middle">detail kelurahan dan rute jalan</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="582.0" y="482.1" dominant-baseline="middle">permintaan rute</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="788.0" y="482.1" dominant-baseline="middle">geometri rute jalan</tspan></text>
+</svg></div>
+      <figcaption>Gambar 1. Diagram konteks. Tiga entitas eksternal: Admin mengunggah hasil optimasi, Perencana memakai dashboard, dan Layanan Rute (OSRM) memberi geometri rute jalan.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <div class="baca" style="display:flex;flex-direction:column;gap:12px">
+      <div class="label">4 · DFD level 1</div>
+      <h2>Proses 0 dibuka menjadi lima proses</h2>
+      <p>Proses 1.0 dan 2.0 adalah bagian Admin (direncanakan untuk prototipe berikutnya). Proses 3.0–5.0 adalah yang sudah ada di prototipe sekarang. Penyimpan data D1–D6 mulai muncul di level ini. Perhatikan bahwa semua aliran yang menyentuh entitas eksternal sama persis dengan diagram konteks; inilah yang disebut <em>balancing</em>.</p>
+    </div>
+    <figure>
+      <div class="kanvas" data-notasi="yourdon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1590 1000">
+<title>DFD Level 1</title>
+<defs><marker id="panah3" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#111111"/></marker></defs>
+<rect width="1590" height="1000" fill="#FFFFFF"/>
+<path d="M124.7,330.0 L296.2,187.5" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah3)"/>
+<path d="M311.5,205.9 L162.3,330.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah3)"/>
+<path d="M581.4,100.0 L432.2,133.7" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah3)"/>
+<path d="M360.0,224.0 L360.0,506.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah3)"/>
+<path d="M122.8,394.0 L290.0,543.5" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah3)"/>
+<path d="M306.0,525.6 L158.8,394.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah3)"/>
+<path d="M428.0,540.7 L732.4,320.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah3)"/>
+<path d="M437.3,557.1 L712.9,440.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah3)"/>
+<path d="M443.4,579.6 L640.0,555.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah3)"/>
+<path d="M442.7,604.5 L645.7,640.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah3)"/>
+<path d="M435.9,626.0 L717.9,760.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah3)"/>
+<path d="M302.9,651.6 L152.5,870.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah3)"/>
+<path d="M181.6,870.0 L322.7,665.3" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah3)"/>
+<path d="M871.4,280.0 L1071.3,244.1" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah3)"/>
+<path d="M801.1,400.0 L1078.1,265.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah3)"/>
+<path d="M815.7,440.0 L1074.7,533.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah3)"/>
+<path d="M880.0,546.2 L1070.1,555.9" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah3)"/>
+<path d="M838.0,640.0 L1072.5,579.9" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah3)"/>
+<path d="M793.9,680.0 L1081.1,849.4" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah3)"/>
+<path d="M830.9,800.0 L1073.0,868.3" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah3)"/>
+<path d="M1150.0,480.0 L1150.0,310.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah3)"/>
+<path d="M1150.0,640.0 L1150.0,810.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah3)"/>
+<path d="M1370.0,544.0 L1228.4,544.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah3)"/>
+<path d="M1228.4,576.0 L1370.0,576.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah3)"/>
+<path d="M1409.6,528.0 L1190.8,298.8" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah3)"/>
+<path d="M1216.8,274.0 L1459.3,528.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah3)"/>
+<path d="M1409.6,592.0 L1190.8,821.2" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah3)"/>
+<path d="M1216.8,846.0 L1459.3,592.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah3)"/>
+<rect x="30" y="330" width="150" height="64" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="105.0" y="362.0" dominant-baseline="middle">Admin</tspan></text>
+<circle cx="360" cy="150" r="74" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="360.0" y="118.9" dominant-baseline="middle">1.0</tspan></text><line x1="306.7" y1="132.2" x2="413.3" y2="132.2" stroke="#111111" stroke-width="1"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle"><tspan x="360.0" y="158.3" dominant-baseline="middle">Kelola Login</tspan><tspan x="360.0" y="174.2" dominant-baseline="middle">Admin</tspan></text>
+<circle cx="360" cy="590" r="84" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="360.0" y="554.7" dominant-baseline="middle">2.0</tspan></text><line x1="299.5" y1="569.8" x2="420.5" y2="569.8" stroke="#111111" stroke-width="1"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle"><tspan x="360.0" y="600.6" dominant-baseline="middle">Kelola Data</tspan><tspan x="360.0" y="616.4" dominant-baseline="middle">Hasil Optimasi</tspan></text>
+<path d="M780,60 H560 V100 H780" fill="none" stroke="#111111" stroke-width="2"/><rect x="560" y="60" width="220" height="40" fill="#FFFFFF" stroke="none" opacity="0"/><line x1="606" y1="60" x2="606" y2="100" stroke="#111111" stroke-width="1.5"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="583.0" y="80.0" dominant-baseline="middle">D1</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="start"><tspan x="616.0" y="80.0" dominant-baseline="middle">Admin</tspan></text>
+<path d="M880,280 H640 V320 H880" fill="none" stroke="#111111" stroke-width="2"/><rect x="640" y="280" width="240" height="40" fill="#FFFFFF" stroke="none" opacity="0"/><line x1="686" y1="280" x2="686" y2="320" stroke="#111111" stroke-width="1.5"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="663.0" y="300.0" dominant-baseline="middle">D5</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="start"><tspan x="696.0" y="300.0" dominant-baseline="middle">Metrik Analisis</tspan></text>
+<path d="M880,400 H640 V440 H880" fill="none" stroke="#111111" stroke-width="2"/><rect x="640" y="400" width="240" height="40" fill="#FFFFFF" stroke="none" opacity="0"/><line x1="686" y1="400" x2="686" y2="440" stroke="#111111" stroke-width="1.5"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="663.0" y="420.0" dominant-baseline="middle">D2</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="start"><tspan x="696.0" y="420.0" dominant-baseline="middle">Faskes</tspan></text>
+<path d="M880,520 H640 V560 H880" fill="none" stroke="#111111" stroke-width="2"/><rect x="640" y="520" width="240" height="40" fill="#FFFFFF" stroke="none" opacity="0"/><line x1="686" y1="520" x2="686" y2="560" stroke="#111111" stroke-width="1.5"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="663.0" y="540.0" dominant-baseline="middle">D4</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="start"><tspan x="696.0" y="540.0" dominant-baseline="middle">Solusi Optimasi</tspan></text>
+<path d="M880,640 H640 V680 H880" fill="none" stroke="#111111" stroke-width="2"/><rect x="640" y="640" width="240" height="40" fill="#FFFFFF" stroke="none" opacity="0"/><line x1="686" y1="640" x2="686" y2="680" stroke="#111111" stroke-width="1.5"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="663.0" y="660.0" dominant-baseline="middle">D3</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="start"><tspan x="696.0" y="660.0" dominant-baseline="middle">Kelurahan</tspan></text>
+<path d="M880,760 H640 V800 H880" fill="none" stroke="#111111" stroke-width="2"/><rect x="640" y="760" width="240" height="40" fill="#FFFFFF" stroke="none" opacity="0"/><line x1="686" y1="760" x2="686" y2="800" stroke="#111111" stroke-width="1.5"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="663.0" y="780.0" dominant-baseline="middle">D6</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="start"><tspan x="696.0" y="780.0" dominant-baseline="middle">Waktu Tempuh dan Rute</tspan></text>
+<circle cx="1150" cy="230" r="80" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="1150.0" y="196.4" dominant-baseline="middle">4.0</tspan></text><line x1="1092.4" y1="210.8" x2="1207.6" y2="210.8" stroke="#111111" stroke-width="1"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle"><tspan x="1150.0" y="239.7" dominant-baseline="middle">Tampilkan</tspan><tspan x="1150.0" y="255.5" dominant-baseline="middle">Analisis</tspan></text>
+<circle cx="1150" cy="560" r="80" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="1150.0" y="526.4" dominant-baseline="middle">3.0</tspan></text><line x1="1092.4" y1="540.8" x2="1207.6" y2="540.8" stroke="#111111" stroke-width="1"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle"><tspan x="1150.0" y="569.7" dominant-baseline="middle">Tampilkan</tspan><tspan x="1150.0" y="585.5" dominant-baseline="middle">Solusi</tspan></text>
+<circle cx="1150" cy="890" r="80" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="1150.0" y="856.4" dominant-baseline="middle">5.0</tspan></text><line x1="1092.4" y1="870.8" x2="1207.6" y2="870.8" stroke="#111111" stroke-width="1"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle"><tspan x="1150.0" y="899.7" dominant-baseline="middle">Tampilkan Detail</tspan><tspan x="1150.0" y="915.5" dominant-baseline="middle">Kelurahan</tspan></text>
+<rect x="1370" y="528" width="190" height="64" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="1465.0" y="551.5" dominant-baseline="middle">Perencana</tspan><tspan x="1465.0" y="568.5" dominant-baseline="middle">(Dinkes / PSC 119)</tspan></text>
+<rect x="60" y="870" width="170" height="64" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="145.0" y="893.5" dominant-baseline="middle">Layanan Rute</tspan><tspan x="145.0" y="910.5" dominant-baseline="middle">(OSRM)</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="162.4" y="249.7" dominant-baseline="middle">data login admin</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="276.9" y="282.0" dominant-baseline="middle">status login</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="506.8" y="104.9" dominant-baseline="middle">data akun admin</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="418.0" y="365.0" dominant-baseline="middle">hak akses admin</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="146.4" y="473.4" dominant-baseline="middle">berkas hasil optimasi</tspan><tspan x="146.4" y="488.1" dominant-baseline="middle">dan data pendukung</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="290.4" y="445.8" dominant-baseline="middle">laporan validasi data</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="616.7" y="394.9" dominant-baseline="middle">metrik analisis</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="619.2" y="470.8" dominant-baseline="middle">data faskes</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="565.3" y="554.3" dominant-baseline="middle">solusi Pareto</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="568.6" y="638.5" dominant-baseline="middle">data kelurahan</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="591.0" y="711.7" dominant-baseline="middle">menit tempuh dan rute</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="169.7" y="760.8" dominant-baseline="middle">permintaan rute</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="324.2" y="773.6" dominant-baseline="middle">geometri rute jalan</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="971.3" y="236.7" dominant-baseline="middle">kenaikan cakupan dan</tspan><tspan x="971.3" y="251.4" dominant-baseline="middle">frekuensi faskes</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="953.4" y="335.8" dominant-baseline="middle">lokasi faskes</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="932.3" y="471.8" dominant-baseline="middle">lokasi faskes</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="975.1" y="542.0" dominant-baseline="middle">solusi Pareto</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="955.3" y="619.9" dominant-baseline="middle">batas kelurahan</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="937.5" y="752.7" dominant-baseline="middle">data kelurahan</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="952.0" y="846.1" dominant-baseline="middle">menit tempuh dan rute</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="1106.0" y="395.0" dominant-baseline="middle">solusi aktif</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="1106.0" y="725.0" dominant-baseline="middle">solusi aktif</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="1299.2" y="510.7" dominant-baseline="middle">pilihan skenario, jumlah pos,</tspan><tspan x="1299.2" y="525.3" dominant-baseline="middle">kondisi lalu lintas, solusi</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="1299.2" y="594.7" dominant-baseline="middle">peta solusi dan</tspan><tspan x="1299.2" y="609.3" dominant-baseline="middle">ringkasan metrik</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="1362.2" y="411.4" dominant-baseline="middle">sakelar pos inti</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="1266.1" y="399.7" dominant-baseline="middle">grafik analisis</tspan><tspan x="1266.1" y="414.3" dominant-baseline="middle">dan pos inti</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="1366.2" y="708.6" dominant-baseline="middle">kelurahan dipilih</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="1264.1" y="707.7" dominant-baseline="middle">detail kelurahan</tspan><tspan x="1264.1" y="722.3" dominant-baseline="middle">dan rute jalan</tspan></text>
+</svg></div>
+      <div class="kanvas" data-notasi="gane" hidden><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1590 1000">
+<title>DFD Level 1</title>
+<defs><marker id="panah4" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#111111"/></marker></defs>
+<rect width="1590" height="1000" fill="#FFFFFF"/>
+<path d="M124.7,330.0 L286.0,195.9" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah4)"/>
+<path d="M314.2,203.7 L162.3,330.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah4)"/>
+<path d="M581.4,100.0 L434.0,133.3" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah4)"/>
+<path d="M360.0,203.7 L360.0,529.1" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah4)"/>
+<path d="M122.8,394.0 L276.0,531.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah4)"/>
+<path d="M309.9,529.1 L158.8,394.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah4)"/>
+<path d="M444.0,529.1 L732.4,320.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah4)"/>
+<path d="M444.0,554.3 L712.9,440.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah4)"/>
+<path d="M444.0,579.5 L640.0,555.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah4)"/>
+<path d="M444.0,604.7 L645.7,640.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah4)"/>
+<path d="M444.0,629.9 L717.9,760.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah4)"/>
+<path d="M303.5,650.9 L152.5,870.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah4)"/>
+<path d="M181.6,870.0 L332.6,650.9" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah4)"/>
+<path d="M871.4,280.0 L1070.0,244.4" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah4)"/>
+<path d="M801.1,400.0 L1070.0,269.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah4)"/>
+<path d="M815.7,440.0 L1070.0,531.3" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah4)"/>
+<path d="M880.0,546.2 L1070.0,555.9" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah4)"/>
+<path d="M838.0,640.0 L1070.0,580.5" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah4)"/>
+<path d="M793.9,680.0 L1070.0,842.8" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah4)"/>
+<path d="M830.9,800.0 L1070.0,867.4" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah4)"/>
+<path d="M1150.0,502.0 L1150.0,288.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah4)"/>
+<path d="M1150.0,618.0 L1150.0,832.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah4)"/>
+<path d="M1370.0,544.0 L1230.0,544.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah4)"/>
+<path d="M1230.0,576.0 L1370.0,576.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah4)"/>
+<path d="M1409.6,528.0 L1180.5,288.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah4)"/>
+<path d="M1230.0,287.7 L1459.3,528.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah4)"/>
+<path d="M1409.6,592.0 L1180.5,832.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah4)"/>
+<path d="M1230.0,832.3 L1459.3,592.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah4)"/>
+<rect x="30" y="330" width="150" height="64" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="105.0" y="362.0" dominant-baseline="middle">Admin</tspan></text>
+<rect x="286.0" y="96.3" width="148.0" height="107.3" rx="14" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><line x1="286.0" y1="122.3" x2="434.0" y2="122.3" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="360.0" y="109.3" dominant-baseline="middle">1.0</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle"><tspan x="360.0" y="155.1" dominant-baseline="middle">Kelola Login</tspan><tspan x="360.0" y="170.9" dominant-baseline="middle">Admin</tspan></text>
+<rect x="276.0" y="529.1" width="168.0" height="121.8" rx="14" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><line x1="276.0" y1="555.1" x2="444.0" y2="555.1" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="360.0" y="542.1" dominant-baseline="middle">2.0</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle"><tspan x="360.0" y="595.1" dominant-baseline="middle">Kelola Data</tspan><tspan x="360.0" y="610.9" dominant-baseline="middle">Hasil Optimasi</tspan></text>
+<path d="M780,60 H560 V100 H780" fill="none" stroke="#111111" stroke-width="2"/><rect x="560" y="60" width="220" height="40" fill="#FFFFFF" stroke="none" opacity="0"/><line x1="606" y1="60" x2="606" y2="100" stroke="#111111" stroke-width="1.5"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="583.0" y="80.0" dominant-baseline="middle">D1</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="start"><tspan x="616.0" y="80.0" dominant-baseline="middle">Admin</tspan></text>
+<path d="M880,280 H640 V320 H880" fill="none" stroke="#111111" stroke-width="2"/><rect x="640" y="280" width="240" height="40" fill="#FFFFFF" stroke="none" opacity="0"/><line x1="686" y1="280" x2="686" y2="320" stroke="#111111" stroke-width="1.5"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="663.0" y="300.0" dominant-baseline="middle">D5</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="start"><tspan x="696.0" y="300.0" dominant-baseline="middle">Metrik Analisis</tspan></text>
+<path d="M880,400 H640 V440 H880" fill="none" stroke="#111111" stroke-width="2"/><rect x="640" y="400" width="240" height="40" fill="#FFFFFF" stroke="none" opacity="0"/><line x1="686" y1="400" x2="686" y2="440" stroke="#111111" stroke-width="1.5"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="663.0" y="420.0" dominant-baseline="middle">D2</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="start"><tspan x="696.0" y="420.0" dominant-baseline="middle">Faskes</tspan></text>
+<path d="M880,520 H640 V560 H880" fill="none" stroke="#111111" stroke-width="2"/><rect x="640" y="520" width="240" height="40" fill="#FFFFFF" stroke="none" opacity="0"/><line x1="686" y1="520" x2="686" y2="560" stroke="#111111" stroke-width="1.5"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="663.0" y="540.0" dominant-baseline="middle">D4</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="start"><tspan x="696.0" y="540.0" dominant-baseline="middle">Solusi Optimasi</tspan></text>
+<path d="M880,640 H640 V680 H880" fill="none" stroke="#111111" stroke-width="2"/><rect x="640" y="640" width="240" height="40" fill="#FFFFFF" stroke="none" opacity="0"/><line x1="686" y1="640" x2="686" y2="680" stroke="#111111" stroke-width="1.5"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="663.0" y="660.0" dominant-baseline="middle">D3</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="start"><tspan x="696.0" y="660.0" dominant-baseline="middle">Kelurahan</tspan></text>
+<path d="M880,760 H640 V800 H880" fill="none" stroke="#111111" stroke-width="2"/><rect x="640" y="760" width="240" height="40" fill="#FFFFFF" stroke="none" opacity="0"/><line x1="686" y1="760" x2="686" y2="800" stroke="#111111" stroke-width="1.5"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="663.0" y="780.0" dominant-baseline="middle">D6</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="start"><tspan x="696.0" y="780.0" dominant-baseline="middle">Waktu Tempuh dan Rute</tspan></text>
+<rect x="1070.0" y="172.0" width="160.0" height="116.0" rx="14" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><line x1="1070.0" y1="198.0" x2="1230.0" y2="198.0" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="1150.0" y="185.0" dominant-baseline="middle">4.0</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle"><tspan x="1150.0" y="235.1" dominant-baseline="middle">Tampilkan</tspan><tspan x="1150.0" y="250.9" dominant-baseline="middle">Analisis</tspan></text>
+<rect x="1070.0" y="502.0" width="160.0" height="116.0" rx="14" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><line x1="1070.0" y1="528.0" x2="1230.0" y2="528.0" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="1150.0" y="515.0" dominant-baseline="middle">3.0</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle"><tspan x="1150.0" y="565.1" dominant-baseline="middle">Tampilkan</tspan><tspan x="1150.0" y="580.9" dominant-baseline="middle">Solusi</tspan></text>
+<rect x="1070.0" y="832.0" width="160.0" height="116.0" rx="14" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><line x1="1070.0" y1="858.0" x2="1230.0" y2="858.0" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="1150.0" y="845.0" dominant-baseline="middle">5.0</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle"><tspan x="1150.0" y="895.1" dominant-baseline="middle">Tampilkan Detail</tspan><tspan x="1150.0" y="910.9" dominant-baseline="middle">Kelurahan</tspan></text>
+<rect x="1370" y="528" width="190" height="64" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="1465.0" y="551.5" dominant-baseline="middle">Perencana</tspan><tspan x="1465.0" y="568.5" dominant-baseline="middle">(Dinkes / PSC 119)</tspan></text>
+<rect x="60" y="870" width="170" height="64" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="145.0" y="893.5" dominant-baseline="middle">Layanan Rute</tspan><tspan x="145.0" y="910.5" dominant-baseline="middle">(OSRM)</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="157.4" y="254.0" dominant-baseline="middle">data login admin</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="278.3" y="280.8" dominant-baseline="middle">status login</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="507.7" y="104.6" dominant-baseline="middle">data akun admin</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="418.0" y="366.4" dominant-baseline="middle">hak akses admin</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="139.4" y="467.2" dominant-baseline="middle">berkas hasil optimasi</tspan><tspan x="139.4" y="481.8" dominant-baseline="middle">dan data pendukung</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="292.3" y="447.6" dominant-baseline="middle">laporan validasi data</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="622.8" y="390.5" dominant-baseline="middle">metrik analisis</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="621.5" y="469.9" dominant-baseline="middle">data faskes</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="565.5" y="554.3" dominant-baseline="middle">solusi Pareto</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="569.1" y="638.6" dominant-baseline="middle">data kelurahan</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="594.6" y="713.5" dominant-baseline="middle">menit tempuh dan rute</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="170.0" y="760.5" dominant-baseline="middle">permintaan rute</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="329.1" y="766.4" dominant-baseline="middle">geometri rute jalan</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="970.7" y="236.9" dominant-baseline="middle">kenaikan cakupan dan</tspan><tspan x="970.7" y="251.5" dominant-baseline="middle">frekuensi faskes</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="949.0" y="337.9" dominant-baseline="middle">lokasi faskes</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="930.1" y="471.1" dominant-baseline="middle">lokasi faskes</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="975.0" y="542.0" dominant-baseline="middle">solusi Pareto</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="954.0" y="620.3" dominant-baseline="middle">batas kelurahan</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="932.0" y="749.4" dominant-baseline="middle">data kelurahan</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="950.5" y="845.7" dominant-baseline="middle">menit tempuh dan rute</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="1106.0" y="395.0" dominant-baseline="middle">solusi aktif</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="1106.0" y="725.0" dominant-baseline="middle">solusi aktif</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="1300.0" y="510.7" dominant-baseline="middle">pilihan skenario, jumlah pos,</tspan><tspan x="1300.0" y="525.3" dominant-baseline="middle">kondisi lalu lintas, solusi</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="1300.0" y="594.7" dominant-baseline="middle">peta solusi dan</tspan><tspan x="1300.0" y="609.3" dominant-baseline="middle">ringkasan metrik</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="1357.0" y="406.0" dominant-baseline="middle">sakelar pos inti</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="1272.7" y="406.6" dominant-baseline="middle">grafik analisis</tspan><tspan x="1272.7" y="421.2" dominant-baseline="middle">dan pos inti</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="1361.0" y="714.0" dominant-baseline="middle">kelurahan dipilih</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="1270.7" y="700.8" dominant-baseline="middle">detail kelurahan</tspan><tspan x="1270.7" y="715.4" dominant-baseline="middle">dan rute jalan</tspan></text>
+</svg></div>
+      <figcaption>Gambar 2. DFD level 1. Proses 3.0 meneruskan "solusi aktif" ke 4.0 dan 5.0, sama seperti di kode: satu state solusi aktif dipakai panel analisis dan panel detail.</figcaption>
+    </figure>
+    <div class="tabel-wadah">
+      <table>
+        <thead><tr><th>Proses</th><th>Yang dikerjakan</th><th>Di prototipe sekarang</th></tr></thead>
+        <tbody>
+          <tr><td><strong>1.0</strong> Kelola Login Admin</td><td>Memeriksa data login terhadap akun di D1, lalu memberi hak akses ke 2.0.</td><td>Belum ada (prototipe berikutnya).</td></tr>
+          <tr><td><strong>2.0</strong> Kelola Data Hasil Optimasi</td><td>Menerima berkas hasil eksak/MOBGOA dan data pendukung, memvalidasinya, mengolahnya, lalu mengisi D2–D6.</td><td>Masih berupa skrip yang dijalankan manual: <code>scripts/cek_data.py</code>, <code>scripts/siapkan_data.py</code>, <code>scripts/ambil_rute.py</code>.</td></tr>
+          <tr><td><strong>3.0</strong> Tampilkan Solusi</td><td>Memilih solusi aktif dari pilihan skenario, p, kondisi, dan titik Pareto; menggambar peta dan ringkasan metrik.</td><td><code>callbacks.py</code> blok 3.0, <code>logika.py</code> bagian 3.0.</td></tr>
+          <tr><td><strong>4.0</strong> Tampilkan Analisis</td><td>Grafik kenaikan cakupan, pos inti, dan 10 kelurahan cakupan terendah.</td><td><code>callbacks.py</code> blok 4.0, <code>logika.py</code> bagian 4.0.</td></tr>
+          <tr><td><strong>5.0</strong> Tampilkan Detail Kelurahan</td><td>Data kelurahan yang diklik, menit tempuh ke pos tercepat, dan rute jalan.</td><td><code>callbacks.py</code> blok 5.0, <code>logika.py</code> bagian 5.0.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="baca" style="display:flex;flex-direction:column;gap:12px">
+      <div class="label">5 · DFD level 2 proses 2.0</div>
+      <h2>Membuka proses yang paling rumit</h2>
+      <p>Tidak semua proses perlu level 2. Yang dibuka hanya proses yang masih terlalu besar untuk dijelaskan dalam beberapa kalimat. Proses 2.0 dibuka karena di dalamnya ada empat pekerjaan berbeda. Nomor anak proses mewarisi nomor induknya: 2.1, 2.2, 2.3, 2.4. Proses 1.0 digambar putus-putus karena ia bukan bagian 2.0, hanya sumber aliran "hak akses admin".</p>
+    </div>
+    <figure>
+      <div class="kanvas" data-notasi="yourdon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1270 920">
+<title>DFD Level 2 Proses 2.0</title>
+<defs><marker id="panah5" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#111111"/></marker></defs>
+<rect width="1270" height="920" fill="#FFFFFF"/>
+<path d="M380.0,122.0 L380.0,174.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah5)"/>
+<path d="M177.1,340.0 L310.5,280.8" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah5)"/>
+<path d="M380.0,326.0 L380.0,468.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah5)"/>
+<path d="M318.6,502.5 L157.4,404.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah5)"/>
+<path d="M452.0,540.0 L680.0,540.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah5)"/>
+<path d="M824.9,493.2 L1092.3,300.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah5)"/>
+<path d="M834.6,511.0 L1068.6,420.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah5)"/>
+<path d="M839.9,535.6 L1000.0,526.7" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah5)"/>
+<path d="M837.1,561.4 L1048.0,620.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah5)"/>
+<path d="M828.3,581.7 L1087.3,740.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah5)"/>
+<path d="M760.0,620.0 L760.0,748.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah5)"/>
+<path d="M689.9,836.4 L470.0,837.5" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah5)"/>
+<path d="M470.0,805.5 L689.7,804.4" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah5)"/>
+<path d="M831.0,808.2 L1000.0,780.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah5)"/>
+<circle cx="380" cy="70" r="52" fill="#FFFFFF" stroke="#555555" stroke-width="2" stroke-dasharray="7 5"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="380.0" y="48.2" dominant-baseline="middle">1.0</tspan></text><line x1="342.6" y1="57.5" x2="417.4" y2="57.5" stroke="#111111" stroke-width="1"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle"><tspan x="380.0" y="73.5" dominant-baseline="middle">Kelola Login</tspan><tspan x="380.0" y="89.4" dominant-baseline="middle">Admin</tspan></text>
+<rect x="30" y="340" width="150" height="64" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="105.0" y="372.0" dominant-baseline="middle">Admin</tspan></text>
+<circle cx="380" cy="250" r="76" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="380.0" y="218.1" dominant-baseline="middle">2.1</tspan></text><line x1="325.3" y1="231.8" x2="434.7" y2="231.8" stroke="#111111" stroke-width="1"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle"><tspan x="380.0" y="258.8" dominant-baseline="middle">Terima Berkas</tspan><tspan x="380.0" y="274.7" dominant-baseline="middle">Hasil Optimasi</tspan></text>
+<circle cx="380" cy="540" r="72" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="380.0" y="509.8" dominant-baseline="middle">2.2</tspan></text><line x1="328.2" y1="522.7" x2="431.8" y2="522.7" stroke="#111111" stroke-width="1"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle"><tspan x="380.0" y="547.9" dominant-baseline="middle">Validasi</tspan><tspan x="380.0" y="563.8" dominant-baseline="middle">Data</tspan></text>
+<circle cx="760" cy="540" r="80" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="760.0" y="506.4" dominant-baseline="middle">2.3</tspan></text><line x1="702.4" y1="520.8" x2="817.6" y2="520.8" stroke="#111111" stroke-width="1"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle"><tspan x="760.0" y="549.7" dominant-baseline="middle">Olah Data</tspan><tspan x="760.0" y="565.5" dominant-baseline="middle">Tampilan</tspan></text>
+<circle cx="760" cy="820" r="72" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="760.0" y="789.8" dominant-baseline="middle">2.4</tspan></text><line x1="708.2" y1="802.7" x2="811.8" y2="802.7" stroke="#111111" stroke-width="1"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle"><tspan x="760.0" y="827.9" dominant-baseline="middle">Ambil Rute</tspan><tspan x="760.0" y="843.8" dominant-baseline="middle">Jalan</tspan></text>
+<rect x="300" y="790" width="170" height="64" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="385.0" y="813.5" dominant-baseline="middle">Layanan Rute</tspan><tspan x="385.0" y="830.5" dominant-baseline="middle">(OSRM)</tspan></text>
+<path d="M1240,260 H1000 V300 H1240" fill="none" stroke="#111111" stroke-width="2"/><rect x="1000" y="260" width="240" height="40" fill="#FFFFFF" stroke="none" opacity="0"/><line x1="1046" y1="260" x2="1046" y2="300" stroke="#111111" stroke-width="1.5"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="1023.0" y="280.0" dominant-baseline="middle">D5</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="start"><tspan x="1056.0" y="280.0" dominant-baseline="middle">Metrik Analisis</tspan></text>
+<path d="M1240,380 H1000 V420 H1240" fill="none" stroke="#111111" stroke-width="2"/><rect x="1000" y="380" width="240" height="40" fill="#FFFFFF" stroke="none" opacity="0"/><line x1="1046" y1="380" x2="1046" y2="420" stroke="#111111" stroke-width="1.5"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="1023.0" y="400.0" dominant-baseline="middle">D2</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="start"><tspan x="1056.0" y="400.0" dominant-baseline="middle">Faskes</tspan></text>
+<path d="M1240,500 H1000 V540 H1240" fill="none" stroke="#111111" stroke-width="2"/><rect x="1000" y="500" width="240" height="40" fill="#FFFFFF" stroke="none" opacity="0"/><line x1="1046" y1="500" x2="1046" y2="540" stroke="#111111" stroke-width="1.5"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="1023.0" y="520.0" dominant-baseline="middle">D4</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="start"><tspan x="1056.0" y="520.0" dominant-baseline="middle">Solusi Optimasi</tspan></text>
+<path d="M1240,620 H1000 V660 H1240" fill="none" stroke="#111111" stroke-width="2"/><rect x="1000" y="620" width="240" height="40" fill="#FFFFFF" stroke="none" opacity="0"/><line x1="1046" y1="620" x2="1046" y2="660" stroke="#111111" stroke-width="1.5"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="1023.0" y="640.0" dominant-baseline="middle">D3</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="start"><tspan x="1056.0" y="640.0" dominant-baseline="middle">Kelurahan</tspan></text>
+<path d="M1240,740 H1000 V780 H1240" fill="none" stroke="#111111" stroke-width="2"/><rect x="1000" y="740" width="240" height="40" fill="#FFFFFF" stroke="none" opacity="0"/><line x1="1046" y1="740" x2="1046" y2="780" stroke="#111111" stroke-width="1.5"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="1023.0" y="760.0" dominant-baseline="middle">D6</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="start"><tspan x="1056.0" y="760.0" dominant-baseline="middle">Waktu Tempuh dan Rute</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="438.0" y="148.0" dominant-baseline="middle">hak akses admin</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="209.8" y="281.1" dominant-baseline="middle">berkas hasil optimasi</tspan><tspan x="209.8" y="295.7" dominant-baseline="middle">dan data pendukung</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="454.0" y="397.0" dominant-baseline="middle">berkas hasil optimasi</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="208.0" y="471.2" dominant-baseline="middle">laporan validasi data</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="566.0" y="530.0" dominant-baseline="middle">data tervalidasi</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="985.3" y="368.3" dominant-baseline="middle">metrik analisis</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="975.0" y="447.4" dominant-baseline="middle">data faskes</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="927.9" y="521.7" dominant-baseline="middle">solusi Pareto</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="953.1" y="605.6" dominant-baseline="middle">data kelurahan</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="983.7" y="688.7" dominant-baseline="middle">menit tempuh</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="704.0" y="676.7" dominant-baseline="middle">pasangan</tspan><tspan x="704.0" y="691.3" dominant-baseline="middle">kelurahan–pos</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="579.9" y="855.0" dominant-baseline="middle">permintaan rute</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="579.9" y="787.0" dominant-baseline="middle">geometri rute jalan</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="924.0" y="806.7" dominant-baseline="middle">rute jalan</tspan></text>
+</svg></div>
+      <div class="kanvas" data-notasi="gane" hidden><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1270 920">
+<title>DFD Level 2 Proses 2.0</title>
+<defs><marker id="panah6" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#111111"/></marker></defs>
+<rect width="1270" height="920" fill="#FFFFFF"/>
+<path d="M380.0,107.7 L380.0,194.9" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah6)"/>
+<path d="M177.1,340.0 L304.0,283.7" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah6)"/>
+<path d="M380.0,305.1 L380.0,487.8" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah6)"/>
+<path d="M308.0,496.0 L157.4,404.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah6)"/>
+<path d="M452.0,540.0 L680.0,540.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah6)"/>
+<path d="M840.0,482.2 L1092.3,300.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah6)"/>
+<path d="M840.0,508.9 L1068.6,420.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah6)"/>
+<path d="M840.0,535.6 L1000.0,526.7" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah6)"/>
+<path d="M840.0,562.2 L1048.0,620.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah6)"/>
+<path d="M840.0,588.9 L1087.3,740.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah6)"/>
+<path d="M760.0,598.0 L760.0,767.8" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah6)"/>
+<path d="M688.0,836.4 L470.0,837.5" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah6)"/>
+<path d="M470.0,805.5 L688.0,804.4" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah6)"/>
+<path d="M832.0,808.0 L1000.0,780.0" fill="none" stroke="#111111" stroke-width="1.4" marker-end="url(#panah6)"/>
+<rect x="328.0" y="32.3" width="104.0" height="75.4" rx="14" fill="#FFFFFF" stroke="#555555" stroke-width="2" stroke-dasharray="7 5"/><line x1="328.0" y1="58.3" x2="432.0" y2="58.3" stroke="#555555" stroke-width="2" stroke-dasharray="7 5"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="380.0" y="45.3" dominant-baseline="middle">1.0</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle"><tspan x="380.0" y="75.1" dominant-baseline="middle">Kelola Login</tspan><tspan x="380.0" y="90.9" dominant-baseline="middle">Admin</tspan></text>
+<rect x="30" y="340" width="150" height="64" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="105.0" y="372.0" dominant-baseline="middle">Admin</tspan></text>
+<rect x="304.0" y="194.9" width="152.0" height="110.2" rx="14" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><line x1="304.0" y1="220.9" x2="456.0" y2="220.9" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="380.0" y="207.9" dominant-baseline="middle">2.1</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle"><tspan x="380.0" y="255.1" dominant-baseline="middle">Terima Berkas</tspan><tspan x="380.0" y="270.9" dominant-baseline="middle">Hasil Optimasi</tspan></text>
+<rect x="308.0" y="487.8" width="144.0" height="104.4" rx="14" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><line x1="308.0" y1="513.8" x2="452.0" y2="513.8" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="380.0" y="500.8" dominant-baseline="middle">2.2</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle"><tspan x="380.0" y="545.1" dominant-baseline="middle">Validasi</tspan><tspan x="380.0" y="560.9" dominant-baseline="middle">Data</tspan></text>
+<rect x="680.0" y="482.0" width="160.0" height="116.0" rx="14" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><line x1="680.0" y1="508.0" x2="840.0" y2="508.0" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="760.0" y="495.0" dominant-baseline="middle">2.3</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle"><tspan x="760.0" y="545.1" dominant-baseline="middle">Olah Data</tspan><tspan x="760.0" y="560.9" dominant-baseline="middle">Tampilan</tspan></text>
+<rect x="688.0" y="767.8" width="144.0" height="104.4" rx="14" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><line x1="688.0" y1="793.8" x2="832.0" y2="793.8" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="760.0" y="780.8" dominant-baseline="middle">2.4</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle"><tspan x="760.0" y="825.1" dominant-baseline="middle">Ambil Rute</tspan><tspan x="760.0" y="840.9" dominant-baseline="middle">Jalan</tspan></text>
+<rect x="300" y="790" width="170" height="64" fill="#FFFFFF" stroke="#111111" stroke-width="2"/><text font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="385.0" y="813.5" dominant-baseline="middle">Layanan Rute</tspan><tspan x="385.0" y="830.5" dominant-baseline="middle">(OSRM)</tspan></text>
+<path d="M1240,260 H1000 V300 H1240" fill="none" stroke="#111111" stroke-width="2"/><rect x="1000" y="260" width="240" height="40" fill="#FFFFFF" stroke="none" opacity="0"/><line x1="1046" y1="260" x2="1046" y2="300" stroke="#111111" stroke-width="1.5"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="1023.0" y="280.0" dominant-baseline="middle">D5</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="start"><tspan x="1056.0" y="280.0" dominant-baseline="middle">Metrik Analisis</tspan></text>
+<path d="M1240,380 H1000 V420 H1240" fill="none" stroke="#111111" stroke-width="2"/><rect x="1000" y="380" width="240" height="40" fill="#FFFFFF" stroke="none" opacity="0"/><line x1="1046" y1="380" x2="1046" y2="420" stroke="#111111" stroke-width="1.5"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="1023.0" y="400.0" dominant-baseline="middle">D2</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="start"><tspan x="1056.0" y="400.0" dominant-baseline="middle">Faskes</tspan></text>
+<path d="M1240,500 H1000 V540 H1240" fill="none" stroke="#111111" stroke-width="2"/><rect x="1000" y="500" width="240" height="40" fill="#FFFFFF" stroke="none" opacity="0"/><line x1="1046" y1="500" x2="1046" y2="540" stroke="#111111" stroke-width="1.5"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="1023.0" y="520.0" dominant-baseline="middle">D4</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="start"><tspan x="1056.0" y="520.0" dominant-baseline="middle">Solusi Optimasi</tspan></text>
+<path d="M1240,620 H1000 V660 H1240" fill="none" stroke="#111111" stroke-width="2"/><rect x="1000" y="620" width="240" height="40" fill="#FFFFFF" stroke="none" opacity="0"/><line x1="1046" y1="620" x2="1046" y2="660" stroke="#111111" stroke-width="1.5"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="1023.0" y="640.0" dominant-baseline="middle">D3</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="start"><tspan x="1056.0" y="640.0" dominant-baseline="middle">Kelurahan</tspan></text>
+<path d="M1240,740 H1000 V780 H1240" fill="none" stroke="#111111" stroke-width="2"/><rect x="1000" y="740" width="240" height="40" fill="#FFFFFF" stroke="none" opacity="0"/><line x1="1046" y1="740" x2="1046" y2="780" stroke="#111111" stroke-width="1.5"/><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="middle" font-weight="bold"><tspan x="1023.0" y="760.0" dominant-baseline="middle">D6</tspan></text><text font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#111111" text-anchor="start"><tspan x="1056.0" y="760.0" dominant-baseline="middle">Waktu Tempuh dan Rute</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="438.0" y="151.3" dominant-baseline="middle">hak akses admin</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="206.6" y="282.5" dominant-baseline="middle">berkas hasil optimasi</tspan><tspan x="206.6" y="297.2" dominant-baseline="middle">dan data pendukung</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="454.0" y="396.5" dominant-baseline="middle">berkas hasil optimasi</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="202.7" y="468.0" dominant-baseline="middle">laporan validasi data</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="566.0" y="530.0" dominant-baseline="middle">data tervalidasi</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="991.4" y="363.9" dominant-baseline="middle">metrik analisis</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="977.1" y="446.6" dominant-baseline="middle">data faskes</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="928.0" y="521.7" dominant-baseline="middle">solusi Pareto</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="954.4" y="606.0" dominant-baseline="middle">data kelurahan</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="988.4" y="691.6" dominant-baseline="middle">menit tempuh</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="704.0" y="675.6" dominant-baseline="middle">pasangan</tspan><tspan x="704.0" y="690.2" dominant-baseline="middle">kelurahan–pos</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="579.0" y="855.0" dominant-baseline="middle">permintaan rute</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="579.0" y="787.0" dominant-baseline="middle">geometri rute jalan</tspan></text>
+<text font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#111111" text-anchor="middle" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" paint-order="stroke"><tspan x="924.4" y="806.6" dominant-baseline="middle">rute jalan</tspan></text>
+</svg></div>
+      <figcaption>Gambar 3. DFD level 2 proses 2.0. Aliran masuk dan keluar dari kotak ini harus sama dengan aliran yang menyentuh proses 2.0 di level 1.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <div class="baca" style="display:flex;flex-direction:column;gap:12px">
+      <div class="label">6 · Aturan yang biasa diperiksa penguji</div>
+      <h2>Kesalahan yang paling sering</h2>
+    </div>
+    <div class="aturan">
+      <div class="atur"><span class="tanda jangan">dilarang</span><h3>Entitas langsung ke penyimpan data</h3><p>Admin tidak boleh menulis langsung ke D2. Data harus lewat proses (2.0) dulu.</p></div>
+      <div class="atur"><span class="tanda jangan">dilarang</span><h3>Penyimpan data ke penyimpan data</h3><p>Data tidak bisa pindah sendiri antar tabel; selalu harus ada proses di antaranya.</p></div>
+      <div class="atur"><span class="tanda jangan">dilarang</span><h3>Entitas ke entitas</h3><p>Aliran antara Admin dan Perencana di luar sistem tidak digambar, karena bukan urusan sistem.</p></div>
+      <div class="atur"><span class="tanda jangan">dilarang</span><h3>Black hole, miracle, gray hole</h3><p>Proses yang hanya punya masukan (black hole), hanya punya keluaran (miracle), atau keluarannya tidak mungkin dihasilkan dari masukannya (gray hole).</p></div>
+      <div class="atur"><span class="tanda boleh">wajib</span><h3>Balancing antar-level</h3><p>Aliran yang masuk/keluar sebuah proses di level atas harus muncul lagi, dengan nama yang sama, di diagram anaknya.</p></div>
+      <div class="atur"><span class="tanda boleh">wajib</span><h3>Penamaan konsisten</h3><p>Proses: kata kerja + objek. Aliran dan penyimpan data: kata benda. Nama yang sama berarti data yang sama di semua diagram.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="baca" style="display:flex;flex-direction:column;gap:12px">
+      <div class="label">7 · Penyimpan data ke ERD</div>
+      <h2>D1–D6 adalah calon tabel</h2>
+      <p>Setelah DFD disetujui, setiap penyimpan data menjadi satu entitas (tabel) di ERD. Isinya sudah bisa ditebak dari file olahan prototipe.</p>
+    </div>
+    <div class="tabel-wadah">
+      <table>
+        <thead><tr><th>Kode</th><th>Penyimpan data</th><th>Isi utama</th><th>Asal di prototipe</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">D1</td><td>Admin</td><td>username, password (di-hash), nama</td><td>belum ada</td></tr>
+          <tr><td class="mono">D2</td><td>Faskes</td><td>kode, nama, jenis (RS/PKM), kecamatan, lat, lng</td><td><code>faskes.json</code></td></tr>
+          <tr><td class="mono">D3</td><td>Kelurahan</td><td>kode KDEPUM, nama, kecamatan, penduduk, lansia, centroid, poligon batas</td><td><code>kelurahan.geojson</code></td></tr>
+          <tr><td class="mono">D4</td><td>Solusi Optimasi</td><td>skenario, metode, p, solusi_id, Z1, Z2, daftar pos, hasil per kelurahan</td><td><code>hasil_&lt;skenario&gt;_&lt;metode&gt;.json</code></td></tr>
+          <tr><td class="mono">D5</td><td>Metrik Analisis</td><td>kenaikan cakupan per p, frekuensi faskes per p awal</td><td><code>metrik_&lt;skenario&gt;_&lt;metode&gt;.json</code></td></tr>
+          <tr><td class="mono">D6</td><td>Waktu Tempuh dan Rute</td><td>menit per pasangan faskes–kelurahan (3 kondisi), geometri rute</td><td><code>menit_google.json</code>, <code>rute_osrm.json</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="baca">
+    <div class="label">8 · Yang perlu Anda kerjakan</div>
+    <h2>Daftar sebelum DFD masuk skripsi</h2>
+    <p>Centang yang sudah selesai; tanda centang hanya tersimpan di browser Anda.</p>
+    <ol class="ceklis" id="ceklis">
+      <li><input type="checkbox" id="c1"><label for="c1"><strong>Tanyakan notasi ke pembimbing atau panduan jurusan</strong><span>Yourdon/DeMarco atau Gane–Sarson. Kedua versi sudah tersedia; pakai satu saja di seluruh skripsi.</span></label></li>
+      <li><input type="checkbox" id="c2"><label for="c2"><strong>Periksa nama entitas, proses, dan aliran</strong><span>Misalnya apakah "Perencana (Dinkes / PSC 119)" sudah tepat, dan apakah Admin memang orang yang mengunggah hasil optimasi.</span></label></li>
+      <li><input type="checkbox" id="c3"><label for="c3"><strong>Putuskan cakupan fitur Admin</strong><span>DFD sudah memuat 1.0 dan 2.0 untuk prototipe berikutnya. Kalau ada fitur Admin lain (kelola akun, hapus data), tambahkan prosesnya sekarang agar DFD dan ERD sejalan.</span></label></li>
+      <li><input type="checkbox" id="c4"><label for="c4"><strong>Tulis kamus data</strong><span>Tabel yang menjelaskan isi setiap aliran dan penyimpan data, misalnya "solusi Pareto = p + solusi_id + Z1 + Z2 + daftar pos".</span></label></li>
+      <li><input type="checkbox" id="c5"><label for="c5"><strong>Tulis spesifikasi proses</strong><span>Untuk setiap proses paling bawah (2.1–2.4, 1.0, 3.0, 4.0, 5.0): masukan, keluaran, dan langkahnya dalam narasi singkat atau pseudocode.</span></label></li>
+      <li><input type="checkbox" id="c6"><label for="c6"><strong>Cek balancing sekali lagi</strong><span>Bandingkan aliran di Gambar 1 dengan Gambar 2, dan aliran proses 2.0 di Gambar 2 dengan Gambar 3. Namanya harus sama persis.</span></label></li>
+      <li><input type="checkbox" id="c7"><label for="c7"><strong>Pertimbangkan level 2 untuk proses 3.0</strong><span>Opsional. Kalau pembimbing meminta lebih rinci, 3.0 bisa dibuka menjadi pilih solusi aktif, bentuk peta, dan hitung ringkasan metrik.</span></label></li>
+      <li><input type="checkbox" id="c8"><label for="c8"><strong>Masukkan ke bab perancangan</strong><span>Tempel SVG (atau ekspor PNG dari draw.io), beri nomor gambar dan keterangan, lalu jelaskan setiap proses dengan satu paragraf.</span></label></li>
+      <li><input type="checkbox" id="c9"><label for="c9"><strong>Lanjut ke ERD</strong><span>Turunkan D1–D6 menjadi tabel dengan atribut, kunci primer, dan relasi.</span></label></li>
+    </ol>
+  </section>
+
+  <section class="baca">
+    <div class="label">9 · File di proyek</div>
+    <h2>Mengedit dan memakai diagramnya</h2>
+    <ul>
+      <li>Semua file ada di <code>docs/dfd/</code>. File <code>.svg</code> bisa langsung disisipkan ke Word (Insert → Pictures) atau LaTeX.</li>
+      <li>File <code>.drawio</code> dibuka di <a href="https://app.diagrams.net" target="_blank" rel="noopener">app.diagrams.net</a> (gratis). Di sana Anda bisa memindahkan bentuk, mengganti nama, lalu File → Export as → PNG/PDF.</li>
+      <li>Nama file berakhiran <code>-gane-sarson</code> adalah versi notasi Gane–Sarson.</li>
+      <li>Kalau isi DFD berubah besar, ubah daftar bentuk dan aliran di <code>docs/dfd/buat_dfd.py</code> lalu jalankan ulang; semua file terbentuk lagi dengan nama aliran yang konsisten.</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+(function () {
+  var tombol = { yourdon: document.getElementById("btn-yourdon"), gane: document.getElementById("btn-gane") };
+  function pilih(n) {
+    document.querySelectorAll(".kanvas").forEach(function (k) { k.hidden = k.dataset.notasi !== n; });
+    tombol.yourdon.setAttribute("aria-pressed", String(n === "yourdon"));
+    tombol.gane.setAttribute("aria-pressed", String(n === "gane"));
+    try { localStorage.setItem("dfd-notasi", n); } catch (e) {}
+  }
+  tombol.yourdon.addEventListener("click", function () { pilih("yourdon"); });
+  tombol.gane.addEventListener("click", function () { pilih("gane"); });
+  try { var simpan = localStorage.getItem("dfd-notasi"); if (simpan === "gane") pilih("gane"); } catch (e) {}
+
+  var kotak = document.querySelectorAll("#ceklis input");
+  var status = {};
+  try { status = JSON.parse(localStorage.getItem("dfd-ceklis") || "{}"); } catch (e) {}
+  kotak.forEach(function (k) {
+    k.checked = !!status[k.id];
+    k.addEventListener("change", function () {
+      status[k.id] = k.checked;
+      try { localStorage.setItem("dfd-ceklis", JSON.stringify(status)); } catch (e) {}
+    });
+  });
+})();
+</script>
