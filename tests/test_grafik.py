@@ -43,3 +43,10 @@ def test_figur_kenaikan_20_titik(data):
     assert "yaxis2" not in fig.layout.to_plotly_json()
     assert garis.customdata[0][0] == "—" and garis.customdata[1][0].startswith("+")
     assert any(tr.type == "scatter" and list(tr.x) == [10] for tr in fig.data)
+
+
+def test_figur_pareto_dua_solusi_tetap_ada_garis(data):
+    daftar = logika.daftar_solusi(data, "utama|eksak", 1)
+    assert len(daftar) == 2
+    fig = grafik.figur_pareto(daftar, 1)
+    assert any(tr.mode == "lines" for tr in fig.data)

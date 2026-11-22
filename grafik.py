@@ -2,6 +2,7 @@
 import plotly.graph_objects as go
 
 import config
+from format_angka import angka
 
 FONT = "IBM Plex Sans, sans-serif"
 FONT_MONO = "IBM Plex Mono, monospace"
@@ -26,17 +27,13 @@ def _tata_letak(fig, judul_x, judul_y):
     return fig
 
 
-def _angka(x, d):
-    return f"{x:.{d}f}".replace(".", ",")
-
-
 def figur_pareto(daftar_solusi, solusi_id_aktif):
     """Scatter X = Z2 (menit), Y = Z1 untuk p terpilih; customdata = solusi_id."""
     fig = go.Figure()
     biasa = [s for s in daftar_solusi if s["solusi_id"] != solusi_id_aktif]
     aktif = [s for s in daftar_solusi if s["solusi_id"] == solusi_id_aktif]
     templat = "Solusi %{customdata}<br>Z1 %{y:.4f}<br>Z2 %{x:.2f} menit<extra></extra>"
-    if len(biasa) > 1:   # garis tipis penghubung front, urut Z2
+    if len(daftar_solusi) > 1:   # garis tipis penghubung front, urut Z2
         urut = sorted(daftar_solusi, key=lambda s: s["Z2"])
         fig.add_trace(go.Scatter(x=[s["Z2"] for s in urut], y=[s["Z1"] for s in urut], mode="lines",
                                  line={"color": WARNA_GRID, "width": 2}, hoverinfo="skip"))
@@ -58,7 +55,7 @@ def figur_kenaikan(kenaikan, p_aktif):
     """Garis Z1 terbaik terhadap p; selisih terhadap p − 1 di tooltip; p aktif ditandai."""
     xs = [r["p"] for r in kenaikan]
     ys = [r["Z1_terbaik"] for r in kenaikan]
-    selisih = ["—" if r["selisih"] is None else ("+" if r["selisih"] >= 0 else "−") + _angka(abs(r["selisih"]), 4)
+    selisih = ["—" if r["selisih"] is None else ("+" if r["selisih"] >= 0 else "−") + angka(abs(r["selisih"]), 4)
                for r in kenaikan]
     fig = go.Figure()
     fig.add_trace(go.Scatter(

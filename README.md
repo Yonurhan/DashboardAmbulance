@@ -65,9 +65,10 @@ config.py         konstanta: batas 15/40 menit, warna, ambang pos inti, p defaul
 data_loader.py    membaca data olahan sekali saat start
 logika.py         fungsi murni: pilih solusi, warna, tabel terendah, pos inti, detail kelurahan
 grafik.py         figur Plotly: front Pareto, kenaikan cakupan
-peta.py           lapisan dash-leaflet: poligon, pos, kandidat, pos inti, garis
+format_angka.py   format angka gaya Indonesia (1.234,5), dipakai layout dan grafik
+peta.py           lapisan dash-leaflet: poligon, logo pos, kandidat, pos inti, rute
 layout.py         kerangka tampilan dan isi kartu/panel
-callbacks.py      interaksi, dikelompokkan per proses DFD
+callbacks.py      interaksi, dikelompokkan per proses DFD (+ blok kerangka tampilan: paskan peta, lipat laci)
 assets/           style.css, peta.js (gaya/klik GeoJSON), fonts/ (IBM Plex, OFL)
 olah/             fungsi penyiapan data (model_io, solusi, metrik, geo)
 scripts/          siapkan_data.py, cek_data.py, ambil_rute.py (rute OSRM)
@@ -91,9 +92,10 @@ Hash SHA-256 file model (identik dengan versi di folder `Code` penelitian):
 | Proses DFD | Implementasi |
 |---|---|
 | 1.0, 2.0 (Admin) | Belum ada di prototipe ini |
-| 3.0 Tampilkan Solusi | `callbacks.py` blok 3.0: skenario, slider p, kondisi, klik front Pareto → peta, kartu metrik, front Pareto (`logika.py` bagian 3.0) |
+| 3.0 Tampilkan Solusi | `callbacks.py` blok 3.0: skenario, slider p, kondisi, klik front Pareto → peta, kartu metrik, front Pareto (`logika.py` bagian 3.0). Kartu metrik secara visual ada di laci analisis, tetapi diisi oleh proses 3.0 karena menggambarkan solusi aktif |
 | 4.0 Tampilkan Analisis | `callbacks.py` blok 4.0: kenaikan cakupan, pos inti, 10 kelurahan terendah (`logika.py` bagian 4.0) |
-| 5.0 Tampilkan Detail Kelurahan | `callbacks.py` blok 5.0: klik kelurahan → panel detail dan garis (`logika.py` bagian 5.0) |
+| 5.0 Tampilkan Detail Kelurahan | `callbacks.py` blok 5.0: klik kelurahan → panel detail (menit ke pos tercepat) dan rute jalan (`logika.py` bagian 5.0) |
+| (bukan proses DFD) | `callbacks.py` blok kerangka tampilan: memaskan peta ke Kota Bekasi dan melipat laci |
 | Penyimpan data | `data/olahan/` dibaca oleh `data_loader.py` |
 
 ## Definisi yang dipakai

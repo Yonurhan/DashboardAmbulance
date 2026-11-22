@@ -69,6 +69,7 @@ KONDISI_DEFAULT = "biasa"
 
 # ------------------------------------------------------------------ dasbor
 P_MIN, P_MAKS = 1, 20
+JUMLAH_FASKES, JUMLAH_KELURAHAN = 99, 56   # ukuran data penelitian (dipakai cek_data.py)
 P_DEFAULT = 10
 AMBANG_POS_INTI = 75.0               # persen
 
@@ -76,7 +77,6 @@ WARNA_KATEGORI = {"<=15": "#1F6FB0", "15-40": "#E0A33A", ">40": "#9E2A2B"}
 LABEL_KATEGORI = {"<=15": "≤ 15 menit", "15-40": "15–40 menit", ">40": "> 40 menit"}
 WARNA_AKSEN = "#3B3FB6"
 WARNA_RUTE = "#D6246E"               # magenta: kontras di atas biru/amber/merah kategori
-WARNA_LATAR = "#F6F5F2"
 WARNA_TEKS = "#1C1B19"
 WARNA_GARIS = "#E2DFD8"
 

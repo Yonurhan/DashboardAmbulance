@@ -40,7 +40,7 @@ def pos_melayani(K_kol, T_kol, idx):
 
 
 def hasil_kelurahan(d, idx):
-    """Isi hasil_kelurahan untuk satu solusi (tanpa angka menit)."""
+    """Isi hasil_kelurahan untuk satu solusi. Menit tidak disimpan di sini; ada di menit_google.json (lokal)."""
     tercepat = {nama: d["D"][kode][list(idx)].min(axis=0) for nama, kode in config.KONDISI.items()}
     out = {}
     for i, kel in enumerate(d["kel"]):

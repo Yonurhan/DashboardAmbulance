@@ -122,3 +122,24 @@ def test_detail_rute_jalan_bila_ada(data):
     assert d["rute"] == jalur
     d0 = logika.detail_kelurahan({**data, "rute": {}}, "utama|eksak", s, kel)
     assert d0["rute"] is None
+
+
+def test_pesan_pos_inti_rentang_p():
+    assert logika.pesan_pos_inti(7, 10) == f"7 pos inti: muncul di ≥ {config.AMBANG_POS_INTI:g}% solusi, p = 10–20."
+    assert logika.pesan_pos_inti(16, 20) == f"16 pos inti: muncul di ≥ {config.AMBANG_POS_INTI:g}% solusi, p = 20."
+    assert "p = 1–20" in logika.pesan_pos_inti(0, 1) and logika.pesan_pos_inti(0, 1).startswith("Tidak ada faskes")
+
+
+def test_menit_tercepat_file_menit_usang_mengembalikan_none(data):
+    if data["menit"] is None:
+        pytest.skip("menit_google.json tidak ada")
+    s = logika.solusi_aktif(data, "utama|mobgoa", 2, 1)
+    usang = {**data["menit"], "fas": {}}               # file menit tidak memuat faskes solusi ini
+    assert logika.menit_tercepat({**data, "menit": usang}, s, next(iter(s["hasil_kelurahan"]))) is None
+
+
+def test_data_loader_menolak_hasil_dengan_p_hilang():
+    indeks = {"utama|eksak": {p: [{}] for p in range(1, 21) if p != 7}}
+    with pytest.raises(ValueError, match="p = 7"):
+        data_loader.periksa_kelengkapan_p(indeks)
+    data_loader.periksa_kelengkapan_p({"utama|eksak": {p: [{}] for p in range(1, 21)}})

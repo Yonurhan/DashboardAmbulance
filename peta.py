@@ -1,14 +1,16 @@
 """Lapisan peta dash-leaflet (DFD 3.0 dan 5.0).
 
 Catatan API (dash-leaflet 1.1.3, dash-extensions 2.0.6, dicek dari versi terpasang):
-- dl.GeoJSON: klik dibaca lewat `n_clicks` + `clickData` (fitur yang diklik);
-  gaya per fitur lewat `style` = fungsi JS di assets/peta.js dan `hideout`.
+- dl.GeoJSON: `clickData` tidak membawa fitur, jadi klik poligon dikirim oleh assets/peta.js
+  lewat set_props ke Store "st-klik-kel"; gaya per fitur lewat `style` (fungsi JS) dan `hideout`.
+- dl.Map: fitBounds hanya lewat prop `viewport` (lihat callbacks.py, kerangka tampilan).
 - dl.TileLayer mendukung `className`, dipakai untuk filter CSS khusus tile.
 """
 import dash_leaflet as dl
 from dash_extensions.javascript import Namespace
 
 import config
+import logika
 
 NS = Namespace("dasbor", "peta")
 
@@ -31,18 +33,17 @@ def batas_wilayah(geojson):
 
 
 def hideout_kelurahan(solusi, kondisi, kode_terpilih):
-    """Isi hideout GeoJSON: warna, label kategori, kelurahan terpilih."""
-    warna, kat = {}, {}
-    for kel, v in solusi["hasil_kelurahan"].items():
-        k = v["kategori"][kondisi]
-        warna[kel] = config.WARNA_KATEGORI[k]
-        kat[kel] = config.LABEL_KATEGORI[k]
-    return {"warna": warna, "kategori": kat, "terpilih": kode_terpilih, "aksen": config.WARNA_AKSEN}
+    """Isi hideout GeoJSON (dibaca assets/peta.js): warna, label kategori, kelurahan terpilih."""
+    kat = {kel: config.LABEL_KATEGORI[v["kategori"][kondisi]] for kel, v in solusi["hasil_kelurahan"].items()}
+    return {"warna": logika.warna_kelurahan(solusi, kondisi), "kategori": kat, "terpilih": kode_terpilih,
+            "aksen": config.WARNA_AKSEN}
 
 
-def peta_dasar(geojson, hideout):
-    """Komponen peta lengkap dengan semua lapisan kosong yang diisi callback."""
-    b = batas_wilayah(geojson)
+def peta_dasar(geojson, b):
+    """Komponen peta lengkap dengan semua lapisan kosong yang diisi callback.
+
+    b: batas wilayah hasil batas_wilayah(geojson), dihitung sekali di layout.buat_layout.
+    """
     pusat = [(b[0][0] + b[1][0]) / 2, (b[0][1] + b[1][1]) / 2]
     # center + zoom wajib ada di dash-leaflet 1.1.3 (tanpa itu muncul galat "reading 'equals'").
     # Penyesuaian ke batas wilayah dilakukan callback klien (callbacks.py) lewat prop viewport,
@@ -54,11 +55,11 @@ def peta_dasar(geojson, hideout):
             dl.TileLayer(url=config.TILE_URL, attribution=config.TILE_ATRIBUSI, className="tile-osm",
                          maxZoom=19),
             dl.ZoomControl(position="topright"),
-            dl.GeoJSON(id="geo-kel", data=geojson, hideout=hideout, style=NS("gaya"),
+            dl.GeoJSON(id="geo-kel", data=geojson, style=NS("gaya"),
                        onEachFeature=NS("tooltip"), hoverStyle={"weight": 2.5, "color": "#1C1B19"}),
             # Poligon kelurahan ada di overlayPane (zIndex 400). Rute di pane sendiri di atasnya, lalu
             # titik kandidat dan cincin pos inti; ikon pos (DivMarker) ada di markerPane (600) paling atas.
-            dl.Pane(name="pane-rute", style={"zIndex": 450}, children=[dl.LayerGroup(id="lap-garis")]),
+            dl.Pane(name="pane-rute", style={"zIndex": 450}, children=[dl.LayerGroup(id="lap-rute")]),
             dl.Pane(name="pane-faskes", style={"zIndex": 460}, children=[
                 dl.LayerGroup(id="lap-kandidat"), dl.LayerGroup(id="lap-inti")]),
             dl.LayerGroup(id="lap-pos"),
@@ -79,7 +80,7 @@ _SVG_RS = ('<svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true">'
 def ikon_faskes(f):
     """DivMarker logo rumah sakit untuk satu faskes (RS dan Puskesmas memakai logo yang sama)."""
     return dl.DivMarker(position=[f["lat"], f["lng"]], children=_tooltip_faskes(f), iconOptions={
-        "className": f"ikon-faskes ikon-{f['jenis'].lower()}", "html": _SVG_RS.format(warna=config.WARNA_TEKS),
+        "className": "ikon-faskes", "html": _SVG_RS.format(warna=config.WARNA_TEKS),
         "iconSize": [20, 20], "iconAnchor": [10, 10]})
 
 
@@ -110,7 +111,7 @@ def lapisan_pos_inti(daftar, data):
     return out
 
 
-def lapisan_garis(detail):
+def lapisan_rute(detail):
     """Jalur dari pos (mulai) ke centroid kelurahan (selesai), magenta agar kontras dengan wilayah.
 
     Mulai: logo rumah sakit pos itu sendiri. Selesai: titik putih bergaris magenta di centroid.

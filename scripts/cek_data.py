@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 import config  # noqa: E402
-from olah import model_io  # noqa: E402
+from olah import model_io, solusi  # noqa: E402
 from olah.model_io import db  # noqa: E402
 
 TOL_Z = 1e-6
@@ -40,7 +40,7 @@ def cek_struktur(hasil, faskes, kode_geo):
         if not set(s["pos"]) <= faskes:
             salah["pos_dikenal"].append(tag)
         hk = s["hasil_kelurahan"]
-        if len(hk) != 56 or set(hk) != kode_geo:
+        if len(hk) != config.JUMLAH_KELURAHAN or set(hk) != kode_geo:
             salah["kel_56"].append(tag)
         for kel, v in hk.items():
             if v["pos_melayani"] not in s["pos"]:
@@ -82,17 +82,15 @@ def cek_angka(hasil, d, csv_eksak):
 
 
 def baca_csv_eksak(path):
+    """Front eksak model fuzzy dari CSV penelitian: {(p, himpunan pos): baris}."""
     a = pd.read_csv(path)
     a = a[a["model"] == "fuzzy"]
-    return {(int(r["p"]), frozenset(str(r["faskes_dibuka"]).split(";"))): r for _, r in a.iterrows()}
+    return {(int(r["p"]), frozenset(solusi._pecah(r["faskes_dibuka"]))): r for _, r in a.iterrows()}
 
 
-def cek_penelitian_eksak(id_s, hasil):
+def cek_penelitian_eksak(id_s, hasil, csv):
     """Kecocokan dengan hasil penelitian: front CSV (dua arah), bobot, dan detail titik ke-1."""
     out = []
-    a = pd.read_csv(config.SKENARIO[id_s]["eksak"])
-    a = a[a["model"] == "fuzzy"]
-    csv = {(int(r.p), frozenset(str(r.faskes_dibuka).split(";"))): r for r in a.itertuples()}
     ol = {(s["p"], frozenset(s["pos"])): s for s in hasil["solusi"]}
     hilang, lebih = set(csv) - set(ol), set(ol) - set(csv)
     dz = max((max(abs(csv[k].Z1_fuzzy - ol[k]["Z1"]), abs(csv[k].Z2_fuzzy_menit - ol[k]["Z2"]))
@@ -113,11 +111,10 @@ def cek_penelitian_eksak(id_s, hasil):
         det = pd.read_csv(path_det)
         det = det[det["model"] == "fuzzy"]
         satu = {s["p"]: s["hasil_kelurahan"] for s in hasil["solusi"] if s["solusi_id"] == 1}
-        bawah, atas = config.BATAS_MENIT
         beda = 0
         for r in det.itertuples():
             v = satu[int(r.p)][r.kode_kelurahan]
-            kat = "<=15" if r.menit_bg <= bawah else ("15-40" if r.menit_bg <= atas else ">40")
+            kat = solusi.kategori_menit(r.menit_bg)
             if (v["pos_melayani"] != r.faskes_kappa_terbesar or abs(v["cakupan"] - r.kappa_terbesar) > 1e-6
                     or v["kategori"]["biasa"] != kat):
                 beda += 1
@@ -135,7 +132,7 @@ def cek_penelitian_mobgoa(hasil):
     m = m[m["tahap"] == hasil["skenario"]["id"]]
     raw = {}
     for r in m.itertuples():
-        raw.setdefault((int(r.p), frozenset(str(r.faskes_dibuka).split(";"))), (r.Z1, r.Z2_menit))
+        raw.setdefault((int(r.p), frozenset(solusi._pecah(r.faskes_dibuka))), (r.Z1, r.Z2_menit))
     tidak, dz = 0, 0.0
     for s in hasil["solusi"]:
         z = raw.get((s["p"], frozenset(s["pos"])))
@@ -150,8 +147,6 @@ def cek_penelitian_mobgoa(hasil):
 def cek_matriks(id_s, d):
     """Pemeriksaan 8: K (dan T bila file lokal ada) sama dengan matriks hasil model."""
     s = config.SKENARIO[id_s]
-    if s["matriks_kappa"] is None:
-        return None, "tidak ada matriks referensi (skenario utama)"
     K = pd.read_csv(s["matriks_kappa"], index_col=0).loc[d["fas"], d["kel"]].to_numpy(float)
     galat_k = float(np.abs(K - d["K"]).max())
     pesan = f"maks |ΔK| = {galat_k:.2e}"
@@ -178,8 +173,10 @@ def jalankan_pemeriksaan():
     faskes = {f["kode"] for f in _baca("faskes.json")}
     geo = _baca("kelurahan.geojson")
     kode_geo = {f["properties"]["kode"] for f in geo["features"]}
-    tambah(("faskes.json berisi 99 faskes", len(faskes) == 99, f"{len(faskes)} faskes"))
-    tambah(("kelurahan.geojson berisi 56 kelurahan", len(kode_geo) == 56, f"{len(kode_geo)} fitur"))
+    tambah((f"faskes.json berisi {config.JUMLAH_FASKES} faskes", len(faskes) == config.JUMLAH_FASKES,
+            f"{len(faskes)} faskes"))
+    tambah((f"kelurahan.geojson berisi {config.JUMLAH_KELURAHAN} kelurahan",
+            len(kode_geo) == config.JUMLAH_KELURAHAN, f"{len(kode_geo)} fitur"))
 
     model, csv_cache = {}, {}
     for nama in _file_hasil():
@@ -208,14 +205,14 @@ def jalankan_pemeriksaan():
             tambah((f"[{label}] 6c. metrik = pct_* di CSV eksak", not sc, "; ".join(sc[:3]) or "OK"))
         bobot_ok = np.allclose([hasil["bobot_kelurahan"][k] for k in d["kel"]], d["w"], atol=1e-8)
         tambah((f"[{label}] bobot_kelurahan = w skenario", bool(bobot_ok), "OK" if bobot_ok else "berbeda"))
-        penelitian = cek_penelitian_eksak(id_s, hasil) if metode == "eksak" else cek_penelitian_mobgoa(hasil)
+        penelitian = (cek_penelitian_eksak(id_s, hasil, csv_e) if metode == "eksak"
+                      else cek_penelitian_mobgoa(hasil))
         for n, ok, ket in penelitian:
             tambah((f"[{label}] {n}", ok, ket))
 
     for id_s, d in model.items():
         ok, pesan = cek_matriks(id_s, d)
-        if ok is not None:
-            tambah((f"[{id_s}] 8. matriks model cocok", ok, pesan))
+        tambah((f"[{id_s}] 8. matriks model cocok", ok, pesan))
     return hasil_cek
 
 

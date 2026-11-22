@@ -3,15 +3,9 @@ from dash import dcc, html
 
 import config
 import peta
+from format_angka import angka
 
 KUNCI_DEFAULT = "|".join(config.ID_DEFAULT)
-
-
-# ------------------------------------------------------------------ format angka (gaya Indonesia)
-def angka(x, d=0):
-    """1234.5 -> '1.234,5' (pemisah ribuan titik, desimal koma)."""
-    s = f"{x:,.{d}f}"
-    return s.replace(",", "_").replace(".", ",").replace("_", ".")
 
 
 def chip_kategori(kat):
@@ -81,12 +75,13 @@ def _laci():
 
 def buat_layout(data):
     """Kerangka halaman: peta penuh layar + kartu melayang + laci analisis."""
+    batas = peta.batas_wilayah(data["geojson"])
     return html.Div(className="akar", children=[
         dcc.Store(id="st-state", data={"kunci": KUNCI_DEFAULT, "p": config.P_DEFAULT,
                                        "kondisi": config.KONDISI_DEFAULT, "solusi_id": 1, "kel": None}),
-        dcc.Store(id="st-batas", data=peta.batas_wilayah(data["geojson"])),
+        dcc.Store(id="st-batas", data=batas),
         dcc.Store(id="st-klik-kel"),
-        peta.peta_dasar(data["geojson"], None),
+        peta.peta_dasar(data["geojson"], batas),
         html.Header(className="bilah", children=[
             html.Div([html.Span(className="logo"),
                       html.H1("Dashboard Lokasi Pos Gawat Darurat Kota Bekasi")], className="bilah-judul"),
@@ -146,8 +141,12 @@ def _menit_terpilih(d, kondisi):
     m = d["menit"][kondisi]
     return html.Div(className="menit-blok", children=[
         html.Div([html.Span(angka(m["menit"], 1), className="menit-besar"), html.Span(" menit", className="satuan")]),
-        html.Div([f"ke pos tercepat ", html.Span(m["pos"], className="kode"),
+        html.Div(["ke pos tercepat ", html.Span(m["pos"], className="kode"),
                   f" · kondisi {config.LABEL_KONDISI[kondisi].lower()}"], className="menit-ket"),
+        # Menit dan rute bisa menunjuk pos berbeda: rute ke pos κ tertinggi, menit ke pos tercepat.
+        html.Div(["Pos tercepat ", html.Span(m["pos"], className="kode"), " berbeda dari pos yang melayani ",
+                  html.Span(d["pos_kode"], className="kode"), "; rute di peta menuju pos yang melayani."],
+                 className="beda-pos") if m["pos"] != d["pos_kode"] else None,
     ])
 
 

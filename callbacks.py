@@ -103,15 +103,13 @@ def daftarkan_callback(app, data):
         if not sakelar:
             return [], ""
         daftar = logika.pos_inti(data, state["kunci"], state["p"])
-        if not daftar:
-            return [], (f"Tidak ada faskes yang muncul di ≥ {config.AMBANG_POS_INTI:g}% solusi "
-                        f"untuk p = {state['p']}–{config.P_MAKS}.")
-        return peta.lapisan_pos_inti(daftar, data), (f"{len(daftar)} pos inti: muncul di ≥ "
-                                                     f"{config.AMBANG_POS_INTI:g}% solusi, p = {state['p']}–{config.P_MAKS}.")
+        return peta.lapisan_pos_inti(daftar, data), logika.pesan_pos_inti(len(daftar), state["p"])
 
+    # ================================================= Kerangka tampilan (bukan proses DFD)
     # Peta dipaskan ke seluruh Kota Bekasi setelah dimuat dan setiap laci dibuka/dilipat.
     # dash-leaflet 1.1.3 hanya menjalankan fitBounds lewat prop `viewport` (bukan `bounds`).
-    # Padding = ruang yang tertutup kolom kiri, bilah judul, legenda, dan laci (lihat style.css).
+    # Padding = ruang yang tertutup kolom kiri, bilah judul, legenda, dan laci. Angka 340/80/395/110
+    # mengikuti --kiri dan --laci di assets/style.css; ubah keduanya bersamaan.
     app.clientside_callback(
         """function(n, kelas, batas) {
             // Ditunda agar peta sudah berukuran penuh dan transisi laci selesai sebelum fitBounds.
@@ -135,10 +133,10 @@ def daftarkan_callback(app, data):
 
     # ================================================= Proses 5.0 Tampilkan Detail Kelurahan
     @app.callback(Output("isi-detail", "children"), Output("panel-detail", "className"),
-                  Output("lap-garis", "children"), Input("st-state", "data"))
+                  Output("lap-rute", "children"), Input("st-state", "data"))
     def tampilkan_detail(state):
         if not state.get("kel"):
             return [], "kartu panel-detail tersembunyi", []
         sol = logika.solusi_aktif(data, state["kunci"], state["p"], state["solusi_id"])
         d = logika.detail_kelurahan(data, state["kunci"], sol, state["kel"])
-        return layout.panel_detail(d, state["kondisi"]), "kartu panel-detail", peta.lapisan_garis(d)
+        return layout.panel_detail(d, state["kondisi"]), "kartu panel-detail", peta.lapisan_rute(d)

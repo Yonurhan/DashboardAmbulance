@@ -14,7 +14,10 @@ def daftar_solusi(data, kunci, p):
 
 
 def solusi_aktif(data, kunci, p, solusi_id):
-    """Solusi dengan solusi_id; kalau tidak ada (atau None) kembali ke solusi_id 1."""
+    """Solusi dengan solusi_id; kalau tidak ada (atau None) kembali ke solusi_id 1.
+
+    Setiap p pasti punya solusi: data_loader.periksa_kelengkapan_p menolak data yang bolong saat start.
+    """
     daftar = daftar_solusi(data, kunci, p)
     for s in daftar:
         if s["solusi_id"] == solusi_id:
@@ -53,14 +56,23 @@ def pos_inti(data, kunci, p_awal):
     return sorted(lolos, key=lambda x: (-x[1], x[0]))
 
 
+def pesan_pos_inti(jumlah, p_awal):
+    """Kalimat ringkas untuk kartu kontrol, misalnya '7 pos inti: muncul di ≥ 75% solusi, p = 10–20.'."""
+    rentang = f"{p_awal}" if int(p_awal) >= config.P_MAKS else f"{p_awal}–{config.P_MAKS}"
+    if not jumlah:
+        return f"Tidak ada faskes yang muncul di ≥ {config.AMBANG_POS_INTI:g}% solusi untuk p = {rentang}."
+    return f"{jumlah} pos inti: muncul di ≥ {config.AMBANG_POS_INTI:g}% solusi, p = {rentang}."
+
+
 # ============================================================ Proses 5.0 Tampilkan Detail Kelurahan
 def menit_tercepat(data, solusi, kode_kel):
-    """Menit Google ke pos tercepat pada tiap kondisi: {kondisi: {"menit", "pos"}}; None tanpa data lokal.
+    """Menit Google ke pos tercepat pada tiap kondisi: {kondisi: {"menit", "pos"}}.
 
     Definisinya sama dengan ukuran_netral di model (minimum waktu mentah atas pos terbuka).
+    None kalau file menit lokal tidak ada atau tidak memuat kelurahan/pos ini (file usang).
     """
     m = data.get("menit")
-    if not m or kode_kel not in m["kel"]:
+    if not m or kode_kel not in m["kel"] or any(f not in m["fas"] for f in solusi["pos"]):
         return None
     j = m["kel"][kode_kel]
     out = {}
@@ -74,7 +86,8 @@ def detail_kelurahan(data, kunci, solusi, kode_kel):
     """Isi panel detail satu kelurahan.
 
     menit: menit Google ke pos tercepat per kondisi (None tanpa data lokal).
-    rute: jalur jalan OSRM ke pos melayani (None kalau belum diambil; peta memakai garis lurus).
+    rute: jalur jalan OSRM ke pos melayani (None kalau rute_osrm.json belum diambil;
+          peta lalu memakai garis lurus putus-putus sebagai ilustrasi).
     """
     info = _info_kelurahan(data)[kode_kel]
     v = solusi["hasil_kelurahan"][kode_kel]
