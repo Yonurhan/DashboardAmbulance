@@ -51,6 +51,7 @@ html, body { margin: 0; height: 100%; background: var(--latar); color: var(--tek
 .mono, .angka { font-family: var(--mono); }
 .redup { color: var(--teks-2); }
 .kanan { text-align: right; }
+.tengah { text-align: center; }
 .kode { font-family: var(--mono); font-size: 11.5px; color: var(--aksen); background: var(--aksen-lembut); border-radius: 6px;
   padding: 1px 6px; white-space: nowrap; }
 .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; white-space: nowrap; }
@@ -161,16 +162,23 @@ html, body { margin: 0; height: 100%; background: var(--latar); color: var(--tek
   color: var(--teks); cursor: pointer; }
 .btn-laci::after { content: " ▾"; color: var(--teks-3); }
 .laci:not(.terbuka) .btn-laci::after { content: " ▴"; }
-.laci-isi { display: grid; grid-template-columns: 0.72fr 1fr 1fr 1.3fr; gap: 10px; height: calc(var(--laci) - 36px); }
+.laci-isi { display: grid; grid-template-columns: 0.9fr 1fr 1fr 1.3fr; gap: 10px; height: calc(var(--laci) - 36px); }
 .kartu-analisis { padding: 12px 14px 6px; display: flex; flex-direction: column; min-width: 0; }
 .kartu-analisis .kepala-kartu { white-space: nowrap; overflow: hidden; }
 .kartu-analisis .ket { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .grafik { flex: 1; min-height: 0; }
 /* kartu ringkasan metrik */
-.grid-metrik { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 12px; }
-.grid-metrik .label { margin: 6px 0 1px; }
-.grid-metrik .angka { font-size: 20px; font-weight: 500; letter-spacing: -.02em; }
-.grid-metrik small { font-size: 11px; color: var(--teks-3); font-weight: 400; }
+.kartu-metrik { padding-bottom: 12px; }
+.grid-metrik { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
+  gap: 8px; margin-top: 8px; }
+.ubin { background: #F3F1EC; border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column;
+  justify-content: center; gap: 4px; min-width: 0; }
+.ubin .label { margin: 0; }
+.ubin .angka { font-size: 22px; font-weight: 500; letter-spacing: -.02em; line-height: 1.1; white-space: nowrap; }
+.ubin small { font-size: 11.5px; color: var(--teks-3); font-weight: 400; letter-spacing: 0; }
+.meter { height: 4px; border-radius: 2px; background: #E2DFD8; overflow: hidden; margin-top: 2px; }
+.meter-isi { height: 100%; border-radius: 2px; background: var(--aksen); }
+.ket-ubin { font-size: 11px; color: var(--teks-3); }
 /* tabel 10 kelurahan terendah */
 .tabel-wadah { overflow-y: auto; flex: 1; margin-top: 6px; scrollbar-width: thin; }
 .tabel { width: 100%; border-collapse: collapse; font-size: 11.5px; line-height: 1.25; }

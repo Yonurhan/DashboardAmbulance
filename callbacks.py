@@ -77,9 +77,9 @@ def daftarkan_callback(app, data):
         ring = logika.ringkasan_metrik(sol, state["kondisi"])
         return (peta.hideout_kelurahan(sol, state["kondisi"], state["kel"]),
                 peta.lapisan_pos(sol, data),
-                layout.kartu_metrik(ring, state["kondisi"], sol["solusi_id"], len(daftar)),
+                layout.kartu_metrik(ring, sol["solusi_id"], len(daftar)),
                 grafik.figur_pareto(daftar, sol["solusi_id"]),
-                f"p = {state['p']} · {len(daftar)} solusi",
+                f"p = {state['p']}: {len(daftar)} solusi",
                 str(state["p"]))
 
     @app.callback(Output("lap-kandidat", "children"), Input("st-state", "data"), Input("sw-kandidat", "value"))

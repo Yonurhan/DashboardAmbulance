@@ -49,7 +49,7 @@ def figur_pareto(daftar_solusi, solusi_id_aktif):
     if len(daftar_solusi) == 1:
         fig.add_annotation(text="Hanya satu solusi Pareto pada p ini", xref="paper", yref="paper",
                            x=0.5, y=0.08, showarrow=False, font={"size": 11, "color": "#6B675F"})
-    return _tata_letak(fig, "Z2 · waktu tempuh berbobot (menit)", "Z1 · cakupan")
+    return _tata_letak(fig, "Z2: waktu tempuh berbobot (menit)", "Z1: cakupan")
 
 
 def figur_kenaikan(kenaikan, p_aktif):

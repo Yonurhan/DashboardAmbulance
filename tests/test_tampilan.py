@@ -126,3 +126,22 @@ def test_kerangka_punya_tombol_hp():
     assert {"btn-kontrol", "btn-legenda", "kolom-kiri", "legenda", "btn-laci"} <= ids
     assert _kelas([akar], "judul-panjang") and _kelas([akar], "judul-pendek")
     assert "Pos Gawat Darurat Bekasi" in _teks(_kelas([akar], "judul-pendek"))
+
+
+RING = {"Z1": 0.9769, "Z2": 9.65, "persen_15": 98.4, "persen_40": 100.0}
+
+
+def test_kartu_metrik_ubin_tanpa_catatan():
+    isi = layout.kartu_metrik(RING, 1, 8)
+    teks = _teks(isi)
+    assert "Persentase permintaan" not in teks and "mnt" not in teks and "·" not in teks
+    assert "Z1: cakupan" in teks and "Z2: waktu" in teks and "menit" in teks
+    assert len(_kelas(isi, "ubin")) == 4
+    # bilah persentase untuk Z1, <= 15 dan <= 40 menit (lebar = nilainya)
+    lebar = [b.style["width"] for b in _kelas(isi, "meter-isi")]
+    assert lebar == ["97.69%", "98.4%", "100.0%"]
+
+
+def test_tabel_cakupan_rata_tengah():
+    tbl = layout.tabel_terendah([{"nama": "A", "kecamatan": "B", "cakupan": 0.884, "kategori": "15-40"}])
+    assert len(_kelas([tbl], "tengah")) == 2 and not _kelas([tbl], "kanan")

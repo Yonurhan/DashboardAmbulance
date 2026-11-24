@@ -102,31 +102,35 @@ def buat_layout(data):
 
 
 # ------------------------------------------------------------------ isi dinamis
-def kartu_metrik(ring, kondisi, solusi_id, jumlah):
-    """Ringkasan metrik solusi aktif."""
-    nama_k = config.LABEL_KONDISI[kondisi].lower()
+def _ubin(label, nilai, satuan, persen=None, ket=None):
+    """Satu ubin metrik: label, angka besar, lalu bilah persentase (0-100) atau keterangan kecil."""
+    isi = [html.Div(label, className="label"), html.Div([nilai, html.Small(satuan)], className="angka")]
+    if persen is not None:
+        isi.append(html.Div(html.Div(className="meter-isi", style={"width": f"{round(persen, 2)}%"}), className="meter"))
+    if ket:
+        isi.append(html.Div(ket, className="ket-ubin"))
+    return html.Div(isi, className="ubin")
+
+
+def kartu_metrik(ring, solusi_id, jumlah):
+    """Ringkasan metrik solusi aktif: empat ubin 2 x 2 yang mengisi tinggi kartu."""
     return [
         html.Div([html.Span("Solusi aktif", className="label"),
                   html.Span(f"{solusi_id} dari {jumlah}", className="ket")], className="kepala-kartu"),
         html.Div(className="grid-metrik", children=[
-            html.Div([html.Div("Z1 · cakupan", className="label"),
-                      html.Div(angka(ring["Z1"], 4), className="angka")]),
-            html.Div([html.Div("Z2 · waktu", className="label"),
-                      html.Div([angka(ring["Z2"], 2), html.Small(" mnt")], className="angka")]),
-            html.Div([html.Div("≤ 15 menit", className="label"),
-                      html.Div([angka(ring["persen_15"], 1), html.Small("%")], className="angka")]),
-            html.Div([html.Div("≤ 40 menit", className="label"),
-                      html.Div([angka(ring["persen_40"], 1), html.Small("%")], className="angka")]),
+            _ubin("Z1: cakupan", angka(ring["Z1"], 4), "", persen=ring["Z1"] * 100),
+            _ubin("Z2: waktu", angka(ring["Z2"], 2), " menit", ket="rata-rata berbobot"),
+            _ubin("≤ 15 menit", angka(ring["persen_15"], 1), "%", persen=ring["persen_15"]),
+            _ubin("≤ 40 menit", angka(ring["persen_40"], 1), "%", persen=ring["persen_40"]),
         ]),
-        html.P(f"Persentase permintaan berbobot, kondisi {nama_k}.", className="catatan"),
     ]
 
 
 def tabel_terendah(baris):
-    kepala = html.Tr([html.Th("Kelurahan"), html.Th("Kecamatan"), html.Th("Cakupan", className="kanan"),
+    kepala = html.Tr([html.Th("Kelurahan"), html.Th("Kecamatan"), html.Th("Cakupan", className="tengah"),
                       html.Th("Kategori")])
     isi = [html.Tr([html.Td(r["nama"]), html.Td(r["kecamatan"], className="redup"),
-                    html.Td(angka(r["cakupan"], 3), className="kanan mono"), html.Td(chip_kategori(r["kategori"]))])
+                    html.Td(angka(r["cakupan"], 3), className="tengah mono"), html.Td(chip_kategori(r["kategori"]))])
            for r in baris]
     return html.Table([html.Thead(kepala), html.Tbody(isi)], className="tabel")
 
