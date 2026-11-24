@@ -16,8 +16,8 @@ def buat_app():
     return app
 
 
-app = buat_app()
-server = app.server  # untuk gunicorn saat deploy (Render): gunicorn app:server
+dash_app = buat_app()
+app = dash_app.server  # objek WSGI (Flask) yang dicari Vercel: entrypoint app.py, variabel `app`
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=8050, debug=False)
+    dash_app.run(host="127.0.0.1", port=8050, debug=False)

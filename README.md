@@ -61,7 +61,7 @@ Buka http://127.0.0.1:8050. Tile peta membutuhkan koneksi internet.
 
 Dasbor dipasang di [Vercel](https://vercel.com) (paket Hobby, gratis) dari repo GitHub privat. Kode tidak ikut terlihat oleh pengunjung.
 
-- `api/index.py` adalah titik masuk; `vercel.json` mengarahkan semua alamat ke sana.
+- Vercel memakai `app.py` sebagai titik masuk; variabel `app` di sana adalah server Flask dari Dash.
 - Vercel memasang `requirements.txt` (hanya paket untuk menjalankan dasbor). Paket penyiapan data dan tes ada di `requirements-dev.txt`.
 - `.vercelignore` membuang folder yang tidak dibutuhkan server (data mentah, docs, tes, model, skrip).
 
