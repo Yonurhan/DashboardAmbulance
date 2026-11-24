@@ -115,3 +115,14 @@ def test_catatan_saat_pos_tercepat_berbeda_dari_pos_melayani():
     beda = _kelas(layout.panel_detail(DETAIL, "lengang"), "beda-pos")
     assert len(beda) == 1 and "RS-18" in _teks(beda) and "PKM-51" in _teks(beda)
     assert _kelas(layout.panel_detail(DETAIL, "biasa"), "beda-pos") == []
+
+
+def test_kerangka_punya_tombol_hp():
+    """Tombol ⚙ (kontrol) dan Legenda untuk HP, serta judul panjang/pendek."""
+    import data_loader
+    akar = layout.buat_layout(data_loader.muat_semua(config.DIR_OLAHAN))
+    semua = _semua(akar)
+    ids = {getattr(x, "id", None) for x in semua}
+    assert {"btn-kontrol", "btn-legenda", "kolom-kiri", "legenda", "btn-laci"} <= ids
+    assert _kelas([akar], "judul-panjang") and _kelas([akar], "judul-pendek")
+    assert "Pos Gawat Darurat Bekasi" in _teks(_kelas([akar], "judul-pendek"))

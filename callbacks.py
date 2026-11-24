@@ -113,10 +113,12 @@ def daftarkan_callback(app, data):
     app.clientside_callback(
         """function(n, kelas, batas) {
             // Ditunda agar peta sudah berukuran penuh dan transisi laci selesai sebelum fitBounds.
-            const bawah = (kelas || "").includes("terbuka") ? 395 : 110;
+            // HP (<= 640 px, lihat @media di style.css): panel tersembunyi, jadi padding kecil saja.
+            const hp = window.innerWidth <= 640;
+            const bawah = hp ? 60 : ((kelas || "").includes("terbuka") ? 395 : 110);
             const pas = function () {
                 window.dash_clientside.set_props("peta", {viewport: {bounds: batas,
-                    options: {paddingTopLeft: [340, 80], paddingBottomRight: [30, bawah]}}});
+                    options: {paddingTopLeft: hp ? [10, 70] : [340, 80], paddingBottomRight: hp ? [10, bawah] : [30, bawah]}}});
             };
             // dua kali: saat muat awal komponen peta dimuat asinkron, jadi panggilan pertama bisa terlalu cepat
             setTimeout(pas, 400);
@@ -126,10 +128,22 @@ def daftarkan_callback(app, data):
         Output("peta", "viewport"), Input("peta", "n_loads"), Input("laci", "className"),
         State("st-batas", "data"))
 
-    @app.callback(Output("laci", "className"), Input("btn-laci", "n_clicks"), State("laci", "className"),
-                  prevent_initial_call=True)
-    def lipat_laci(_n, kelas):
-        return "laci" if "terbuka" in (kelas or "") else "laci terbuka"
+    # Laci: keadaan awal mengikuti lebar layar (HP terlipat, desktop terbuka); setelah itu tiap klik menukar.
+    app.clientside_callback(
+        """function(n, kelas) {
+            if (!n) { return window.innerWidth <= 640 ? "laci" : "laci terbuka"; }
+            return (kelas || "").includes("terbuka") ? "laci" : "laci terbuka";
+        }""",
+        Output("laci", "className"), Input("btn-laci", "n_clicks"), State("laci", "className"))
+
+    # Tombol khusus HP: ⚙ membuka/menutup kartu kontrol, "Legenda" membuka/menutup isi legenda.
+    tukar_terbuka = """function(n, kelas) {
+        kelas = kelas || "";
+        return kelas.includes(" terbuka") ? kelas.replace(" terbuka", "") : kelas + " terbuka";
+    }"""
+    for tombol, target in (("btn-kontrol", "kolom-kiri"), ("btn-legenda", "legenda")):
+        app.clientside_callback(tukar_terbuka, Output(target, "className"), Input(tombol, "n_clicks"),
+                                State(target, "className"), prevent_initial_call=True)
 
     # ================================================= Proses 5.0 Tampilkan Detail Kelurahan
     @app.callback(Output("isi-detail", "children"), Output("panel-detail", "className"),

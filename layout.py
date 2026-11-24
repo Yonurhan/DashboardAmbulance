@@ -38,7 +38,8 @@ def _kartu_kontrol(data):
 
 
 def _legenda():
-    return html.Div(className="kartu legenda", children=[
+    return html.Div(id="legenda", className="kartu legenda", children=[
+        html.Button("Legenda", id="btn-legenda", className="btn-hp btn-legenda", n_clicks=0),  # hanya di HP
         html.Div("Waktu ke pos tercepat", className="label"),
         *[html.Div([html.I(className="kotak", style={"background": config.WARNA_KATEGORI[k]}), v],
                    className="legenda-baris") for k, v in config.LABEL_KATEGORI.items()],
@@ -50,7 +51,7 @@ def _legenda():
 
 
 def _laci():
-    return html.Div(id="laci", className="laci terbuka", children=[
+    return html.Div(id="laci", className="laci terbuka awal", children=[
         html.Button("Analisis", id="btn-laci", className="btn-laci", n_clicks=0),
         html.Div(className="laci-isi", children=[
             html.Div(id="kartu-metrik", className="kartu kartu-analisis kartu-metrik"),
@@ -84,9 +85,13 @@ def buat_layout(data):
         peta.peta_dasar(data["geojson"], batas),
         html.Header(className="bilah", children=[
             html.Div([html.Span(className="logo"),
-                      html.H1("Dashboard Lokasi Pos Gawat Darurat Kota Bekasi")], className="bilah-judul"),
+                      html.H1([html.Span("Dashboard Lokasi Pos Gawat Darurat Kota Bekasi", className="judul-panjang"),
+                               html.Span("Pos Gawat Darurat Bekasi", className="judul-pendek")])],
+                     className="bilah-judul"),
+            # hanya tampil di HP: membuka/menutup kartu kontrol
+            html.Button("⚙", id="btn-kontrol", className="btn-hp btn-kontrol", n_clicks=0, title="Pengaturan"),
         ]),
-        html.Aside(className="kolom-kiri", children=[_kartu_kontrol(data)]),
+        html.Aside(id="kolom-kiri", className="kolom-kiri", children=[_kartu_kontrol(data)]),
         html.Div(id="panel-detail", className="kartu panel-detail tersembunyi", children=[
             html.Button("×", id="btn-tutup", className="btn-tutup", n_clicks=0, title="Tutup panel"),
             html.Div(id="isi-detail"),

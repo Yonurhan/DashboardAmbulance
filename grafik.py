@@ -19,7 +19,8 @@ def _tata_letak(fig, judul_x, judul_y):
         hoverlabel={"bgcolor": "#FFFFFF", "bordercolor": config.WARNA_GARIS,
                     "font": {"family": FONT_MONO, "size": 11, "color": config.WARNA_TEKS}},
     )
-    sumbu = {"gridcolor": WARNA_GRID, "zeroline": False, "linecolor": config.WARNA_GARIS,
+    sumbu = {"fixedrange": True,  # tanpa zoom/drag; tooltip tetap ada
+             "gridcolor": WARNA_GRID, "zeroline": False, "linecolor": config.WARNA_GARIS,
              "tickfont": {"family": FONT_MONO, "size": 10, "color": "#6B675F"},
              "title": {"font": {"size": 11, "color": "#6B675F"}}}
     fig.update_xaxes(title_text=judul_x, **sumbu)

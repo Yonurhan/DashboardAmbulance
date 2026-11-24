@@ -50,3 +50,12 @@ def test_figur_pareto_dua_solusi_tetap_ada_garis(data):
     assert len(daftar) == 2
     fig = grafik.figur_pareto(daftar, 1)
     assert any(tr.mode == "lines" for tr in fig.data)
+
+
+def test_grafik_tidak_bisa_dizoom(data):
+    """Zoom/drag dimatikan: sumbu dikunci, tooltip tetap ada (hovermode)."""
+    figs = [grafik.figur_pareto(logika.daftar_solusi(data, "utama|eksak", 4), 1),
+            grafik.figur_kenaikan(data["metrik"]["utama|eksak"]["kenaikan_cakupan"], 10)]
+    for fig in figs:
+        assert fig.layout.xaxis.fixedrange is True and fig.layout.yaxis.fixedrange is True
+        assert fig.layout.hovermode == "closest"

@@ -179,3 +179,51 @@ html, body { margin: 0; height: 100%; background: var(--latar); color: var(--tek
 .tabel td { padding: 2.5px 6px; border-top: 1px solid #EFEDE8; }
 .tabel td, .tabel th { white-space: nowrap; }
 .tabel td:first-child { max-width: 130px; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---------- HP (lebar <= 640 px; angka yang sama dipakai callback klien di callbacks.py) ----------
+ * Peta penuh layar; kontrol (⚙), legenda, dan Analisis dibuka saat perlu; detail jadi lembar bawah. */
+.btn-hp, .judul-pendek { display: none; }
+@media (max-width: 640px) {
+  .bilah { top: 8px; left: 8px; right: 8px; height: 44px; padding: 0 5px 0 12px; justify-content: space-between; }
+  .bilah h1 { font-size: 14px; }
+  .judul-panjang { display: none; }
+  .judul-pendek { display: inline; }
+  .btn-hp { display: inline-flex; align-items: center; justify-content: center; border: none; cursor: pointer;
+    font-family: var(--sans); color: var(--teks); }
+  .btn-kontrol { width: 34px; height: 34px; border-radius: 10px; background: #EFEDE8; font-size: 17px; }
+  .akar:has(.kolom-kiri.terbuka) .btn-kontrol { background: var(--aksen); color: #fff; }
+  .leaflet-top.leaflet-right { display: none; }                       /* zoom dengan cubit */
+  .leaflet-bottom.leaflet-right, .akar:has(.laci:not(.terbuka)) .leaflet-bottom.leaflet-right { bottom: 48px; z-index: 999; }
+
+  /* kartu kontrol: turun dari bilah judul saat ⚙ ditekan */
+  .kolom-kiri { display: none; top: 58px; left: 8px; right: 8px; width: auto; max-height: calc(100dvh - 120px); z-index: 1003; }
+  .kolom-kiri.terbuka { display: flex; }
+
+  /* legenda: hanya tombol; ditekan -> isi bertumpuk */
+  .legenda, .akar:has(.laci:not(.terbuka)) .legenda { left: 8px; bottom: 52px; padding: 0; gap: 6px; max-width: calc(100% - 16px); }
+  .legenda > :not(.btn-legenda), .legenda.terbuka .legenda-sep { display: none; }
+  .legenda.terbuka { padding: 10px 12px; flex-direction: column; align-items: flex-start; }
+  .legenda.terbuka > :not(.legenda-sep) { display: flex; }
+  .btn-legenda { padding: 8px 12px; border-radius: var(--sudut); background: transparent; font-size: 12px; font-weight: 500; }
+  .btn-legenda::after { content: " ▴"; color: var(--teks-3); white-space: pre; }
+  .legenda.terbuka .btn-legenda { padding: 0 0 2px; }
+  .legenda.terbuka .btn-legenda::after { content: " ▾"; }
+  .akar:has(.laci.terbuka:not(.awal)) .legenda { display: none; }
+
+  /* laci Analisis: lembar bawah, kartu bertumpuk dan bisa digulir */
+  .laci { left: 8px; right: 8px; bottom: 8px; }
+  /* .awal = kelas dari server sebelum callback klien jalan: di HP langsung terlipat tanpa animasi */
+  .laci:not(.terbuka), .laci.awal { transform: translateY(calc(100% - 36px)); }
+  .laci.awal { transition: none; }
+  .laci-isi { grid-template-columns: 1fr; height: auto; max-height: calc(80dvh - 36px); overflow-y: auto; gap: 8px;
+    border-radius: var(--sudut); overscroll-behavior: contain; }
+  .kartu-analisis { padding-bottom: 10px; }
+  .kartu-analisis .grafik { flex: none; height: 230px; }
+  .kartu-analisis .kepala-kartu { white-space: normal; }
+  .tabel-wadah { flex: none; overflow: auto; }
+  .tabel td, .tabel th { padding-left: 4px; padding-right: 4px; }
+
+  /* detail kelurahan: lembar bawah di atas laci */
+  .panel-detail { top: auto; left: 8px; right: 8px; bottom: 8px; width: auto; max-height: 55dvh; z-index: 1004;
+    overscroll-behavior: contain; }
+}
