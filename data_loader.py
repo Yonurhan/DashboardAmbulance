@@ -1,5 +1,8 @@
 """Membaca semua data olahan sekali saat aplikasi mulai (penyimpan data DFD)."""
+import base64
+import gzip
 import json
+import os
 
 import config
 
@@ -57,14 +60,16 @@ def periksa_kelengkapan_p(indeks):
 def muat_menit(dir_olahan):
     """Menit Google per pasangan faskes-kelurahan (tidak ada di Git). None kalau tidak ada.
 
-    Dicari di data/olahan (lokal), lalu di config.DIR_MENIT_CADANGAN (Secret File di Render).
+    Dicari di data/olahan (lokal), lalu di environment variable config.ENV_MENIT (server Vercel).
     Bentuk: {"fas": {kode: baris}, "kel": {kode: kolom}, "opt"/"bg"/"pes": matriks [faskes][kelurahan]}.
     """
-    path = next((p for p in (dir_olahan / config.FILE_MENIT, config.DIR_MENIT_CADANGAN / config.FILE_MENIT)
-                 if p.exists()), None)
-    if path is None:
+    path = dir_olahan / config.FILE_MENIT
+    if path.exists():
+        m = _baca(path)
+    elif os.environ.get(config.ENV_MENIT):
+        m = json.loads(gzip.decompress(base64.b64decode(os.environ[config.ENV_MENIT])))
+    else:
         return None
-    m = _baca(path)
     return {"fas": {k: i for i, k in enumerate(m["fas"])}, "kel": {k: j for j, k in enumerate(m["kel"])},
             **{c: m[c] for c in config.KONDISI.values()}}
 

@@ -55,7 +55,7 @@ ID_DEFAULT = ("utama", "mobgoa")
 
 # Menit Google per pasangan untuk panel detail: data Google, jadi hanya lokal (di-ignore Git).
 FILE_MENIT = "menit_google.json"
-DIR_MENIT_CADANGAN = Path("/etc/secrets")  # Render Secret File: menit Google di server tanpa masuk Git
+ENV_MENIT = "MENIT_GOOGLE_GZ_B64"  # di server (Vercel): isi menit_google.json, di-gzip lalu base64
 # Rute jalan dari OSRM (data OpenStreetMap), dihitung sekali oleh scripts/ambil_rute.py.
 FILE_RUTE = "rute_osrm.json"
 OSRM_URL = "https://router.project-osrm.org/route/v1/driving/"

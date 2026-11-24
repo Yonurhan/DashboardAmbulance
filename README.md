@@ -10,7 +10,7 @@ Butuh Python 3.11.
 
 ```powershell
 py -3.11 -m venv .venv
-.venv\Scripts\python -m pip install -r requirements.txt
+.venv\Scripts\python -m pip install -r requirements-dev.txt
 ```
 
 ## Menyiapkan data
@@ -57,22 +57,29 @@ Rute diambil dari server demo OSRM (`router.project-osrm.org`, data © OpenStree
 
 Buka http://127.0.0.1:8050. Tile peta membutuhkan koneksi internet.
 
-## Deploy (Render)
+## Deploy (Vercel)
 
-Dasbor bisa dipasang di [Render](https://render.com) (paket gratis) dari repo GitHub privat. `render.yaml` sudah berisi semua pengaturannya:
+Dasbor dipasang di [Vercel](https://vercel.com) (paket Hobby, gratis) dari repo GitHub privat. Kode tidak ikut terlihat oleh pengunjung.
 
-1. Push repo ke GitHub (repo privat).
-2. Di Render: **New → Blueprint**, pilih repo ini, lalu **Apply**.
-3. Render memasang `requirements-deploy.txt` (hanya paket untuk menjalankan dasbor) dan menjalankan `gunicorn app:server`.
+- `api/index.py` adalah titik masuk; `vercel.json` mengarahkan semua alamat ke sana.
+- Vercel memasang `requirements.txt` (hanya paket untuk menjalankan dasbor). Paket penyiapan data dan tes ada di `requirements-dev.txt`.
+- `.vercelignore` membuang folder yang tidak dibutuhkan server (data mentah, docs, tes, model, skrip).
 
-Angka menit Google (`data/olahan/menit_google.json`) **tidak masuk Git**. Agar tetap tampil di versi deploy, unggah file itu sebagai *Secret File* Render:
+Langkah:
 
-4. Di service Render: **Environment → Secret Files → Add Secret File**, nama `menit_google.json`, isi = isi file `data/olahan/menit_google.json` dari laptop. Simpan, lalu **Manual Deploy → Deploy latest commit**.
-5. Render menaruhnya di `/etc/secrets/menit_google.json`; `data_loader.muat_menit` membaca dari sana kalau file tidak ada di `data/olahan`. Tanpa Secret File, dasbor tetap jalan, hanya tanpa angka menit.
+1. Di Vercel: **Add New → Project**, pilih repo ini dari GitHub, lalu **Deploy** (pengaturan bawaan sudah cukup).
+2. Angka menit Google (`data/olahan/menit_google.json`) **tidak masuk Git**. Agar tetap tampil, buat isi environment variable-nya:
+
+   ```powershell
+   .venv\Scripts\python scripts\menit_ke_env.py > menit_env.txt
+   ```
+
+   Di Vercel: **Settings → Environment Variables**, nama `MENIT_GOOGLE_GZ_B64`, isi = isi `menit_env.txt`. Simpan, lalu **Deployments → Redeploy**. Hapus `menit_env.txt` setelahnya.
+3. `data_loader.muat_menit` membaca file lokal dulu, lalu environment variable itu. Tanpa keduanya, dasbor tetap jalan, hanya tanpa angka menit.
 
 Catatan:
 - Angka menit ikut tampil di dasbor publik dan berasal dari data Google Maps Platform; pertimbangkan ketentuan penggunaannya sebelum membagikan link secara luas.
-- Paket gratis tertidur setelah 15 menit tanpa pengunjung; kunjungan pertama setelahnya butuh ±30–60 detik.
+- Vercel bersifat *serverless*: buka pertama setelah lama tidak dipakai bisa lambat beberapa detik.
 - Tidak ada login: siapa pun yang punya link bisa membuka dasbor.
 
 ## Struktur folder

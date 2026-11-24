@@ -1,0 +1,10 @@
+# Hanya kode dasbor, assets, dan data/olahan yang dibutuhkan di server.
+data/mentah
+docs
+tests
+model
+olah
+scripts
+reference_image
+requirements-dev.txt
+pytest.ini

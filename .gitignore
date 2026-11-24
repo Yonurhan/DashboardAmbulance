@@ -21,3 +21,6 @@ data/olahan/menit_google.json
 
 # gambar referensi desain pihak ketiga
 reference_image/
+
+# isi env var menit untuk Vercel (data Google)
+menit_env.txt
