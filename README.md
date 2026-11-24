@@ -35,7 +35,7 @@ Data mentah yang dibutuhkan di `data/mentah/`:
 Rute jalan (sekali saja, butuh internet, ±12 menit untuk ±470 pasangan; aman dijalankan ulang karena rute yang sudah ada dilewati):
 
 ```powershell
-.venv\Scripts\python scriptsmbil_rute.py
+.venv\Scripts\python scripts\ambil_rute.py
 ```
 
 Rute diambil dari server demo OSRM (`router.project-osrm.org`, data © OpenStreetMap contributors) untuk setiap pasangan kelurahan → pos yang melayani di semua file hasil, lalu disimpan di `data/olahan/rute_osrm.json`. Dasbor hanya memakai bentuk jalurnya; angka menit tetap dari Google. Tanpa file ini, dasbor menampilkan garis lurus (ilustrasi). `cek_data.py` memeriksa struktur data, menghitung ulang Z1/Z2 dan persentase dengan fungsi dari `model/`, lalu memastikan hasilnya **sama dengan hasil penelitian**: front CSV, `bobot_kelurahan.csv`, `detail_kelurahan.csv`, dan `mobgoa_front.csv`. Ketidakcocokan hanya dilaporkan, tidak diperbaiki.
@@ -56,6 +56,24 @@ Rute diambil dari server demo OSRM (`router.project-osrm.org`, data © OpenStree
 ```
 
 Buka http://127.0.0.1:8050. Tile peta membutuhkan koneksi internet.
+
+## Deploy (Render)
+
+Dasbor bisa dipasang di [Render](https://render.com) (paket gratis) dari repo GitHub privat. `render.yaml` sudah berisi semua pengaturannya:
+
+1. Push repo ke GitHub (repo privat).
+2. Di Render: **New → Blueprint**, pilih repo ini, lalu **Apply**.
+3. Render memasang `requirements-deploy.txt` (hanya paket untuk menjalankan dasbor) dan menjalankan `gunicorn app:server`.
+
+Angka menit Google (`data/olahan/menit_google.json`) **tidak masuk Git**. Agar tetap tampil di versi deploy, unggah file itu sebagai *Secret File* Render:
+
+4. Di service Render: **Environment → Secret Files → Add Secret File**, nama `menit_google.json`, isi = isi file `data/olahan/menit_google.json` dari laptop. Simpan, lalu **Manual Deploy → Deploy latest commit**.
+5. Render menaruhnya di `/etc/secrets/menit_google.json`; `data_loader.muat_menit` membaca dari sana kalau file tidak ada di `data/olahan`. Tanpa Secret File, dasbor tetap jalan, hanya tanpa angka menit.
+
+Catatan:
+- Angka menit ikut tampil di dasbor publik dan berasal dari data Google Maps Platform; pertimbangkan ketentuan penggunaannya sebelum membagikan link secara luas.
+- Paket gratis tertidur setelah 15 menit tanpa pengunjung; kunjungan pertama setelahnya butuh ±30–60 detik.
+- Tidak ada login: siapa pun yang punya link bisa membuka dasbor.
 
 ## Struktur folder
 

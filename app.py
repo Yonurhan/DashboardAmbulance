@@ -16,5 +16,8 @@ def buat_app():
     return app
 
 
+app = buat_app()
+server = app.server  # untuk gunicorn saat deploy (Render): gunicorn app:server
+
 if __name__ == "__main__":
-    buat_app().run(host="127.0.0.1", port=8050, debug=False)
+    app.run(host="127.0.0.1", port=8050, debug=False)

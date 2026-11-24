@@ -55,12 +55,14 @@ def periksa_kelengkapan_p(indeks):
 
 
 def muat_menit(dir_olahan):
-    """Menit Google per pasangan faskes-kelurahan (file lokal, tidak ada di Git). None kalau tidak ada.
+    """Menit Google per pasangan faskes-kelurahan (tidak ada di Git). None kalau tidak ada.
 
+    Dicari di data/olahan (lokal), lalu di config.DIR_MENIT_CADANGAN (Secret File di Render).
     Bentuk: {"fas": {kode: baris}, "kel": {kode: kolom}, "opt"/"bg"/"pes": matriks [faskes][kelurahan]}.
     """
-    path = dir_olahan / config.FILE_MENIT
-    if not path.exists():
+    path = next((p for p in (dir_olahan / config.FILE_MENIT, config.DIR_MENIT_CADANGAN / config.FILE_MENIT)
+                 if p.exists()), None)
+    if path is None:
         return None
     m = _baca(path)
     return {"fas": {k: i for i, k in enumerate(m["fas"])}, "kel": {k: j for j, k in enumerate(m["kel"])},
