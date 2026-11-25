@@ -13,11 +13,11 @@ def _baca(path):
 
 
 def label_opsi(hasil):
-    """Label dropdown, misalnya 'Utama · MOBGOA (gabungan 30 run)'."""
+    """Label dropdown, misalnya 'Utama: MOBGOA (gabungan 30 run)'."""
     sk = hasil["skenario"]
     nama = config.SKENARIO.get(sk["id"], {}).get("nama_pendek", sk["nama"])
     metode = config.NAMA_METODE[sk["metode"]].format(seed=sk["sumber"].get("jumlah_seed", ""))
-    return f"{nama} · {metode}"
+    return f"{nama}: {metode}"
 
 
 def muat_semua(dir_olahan):
